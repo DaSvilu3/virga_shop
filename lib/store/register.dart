@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:virga_shop/network/api.dart';
+import 'dart:convert';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -10,34 +12,36 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  
+  bool _passwordObscure = true;
+  bool _confirmPasswordObscure = true;
+
   //input controllers to retrieve the values
-  final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _mobileController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
+    _emailController.dispose();
+    _mobileController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
   }
-  
+
   ///function that returns input field text styles
   TextStyle _inputFontStyle() {
-    return new TextStyle(      
-      color: Colors.black87,
-      fontSize: 16.0
-    );
+    return new TextStyle(color: Colors.black87, fontSize: 16.0);
   }
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return new Scaffold(
+      key: _scaffoldKey,
       body: new SafeArea(
         child: new SingleChildScrollView(
           scrollDirection: Axis.vertical,
@@ -64,60 +68,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: new Column(
                       children: <Widget>[
                         ///
-                        ///First Name
                         ///
-                        new Padding(
-                          padding: new EdgeInsets.symmetric(
-                              horizontal: 30.0, vertical: 10.0),
-                          child: new TextFormField(
-                            controller: _fullNameController,
-                            style: _inputFontStyle(),
-                            keyboardType: TextInputType.text,
-                            decoration: InputDecoration(
-                              hintText: "Full Name",
-                              prefixIcon: Icon(Icons.person),                              
-                            ),
-                            validator: (value){
-                              if(value.isEmpty){
-                                return "Full name cannot be empty";
-                              }
-                              if(value.length<3){
-                                return "Invalid name";
-                              }
-                            },
-                          ),
-                        ),
-
-                        ////
-                        /////
-                        /// Email
+                        /// Mobile Number input : used as login for the user account
                         ///
-                        new Padding(
-                          padding: new EdgeInsets.symmetric(
-                              horizontal: 30.0, vertical: 10.0),
-                          child: new TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            style: _inputFontStyle(),
-                            decoration: InputDecoration(
-                                hintText: "Email",
-                                prefixIcon: Icon(FontAwesomeIcons.at)
-                                ),
-                            validator: (value){
-
-                              ///make sure email contains @ and .
-                              if(!value.contains("@") || !value.contains(".")){
-                                return "Not a valid email address";
-                              }
-                            },
-                                
-                          ),
-                          
-                        ),
-
-                        ////
-                        /////
-                        /// Mobile
                         ///
                         new Padding(
                           padding: new EdgeInsets.symmetric(
@@ -130,29 +83,52 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 hintText: "Mobile Number",
                                 prefixText: "+91",
                                 prefixIcon: Icon(FontAwesomeIcons.mobileAlt)),
-                            validator: (value){
-                              if(value.length<10 || value.length >10){
+                            validator: (value) {
+                              if (value.length < 10 || value.length > 10) {
                                 return "Invalid mobile number";
                               }
                             },
                           ),
                         ),
 
-                        ///////
-                        ////  Divider 
-                        /// 
-                        //////
+                        ///
+                        ///
+                        /// Email : Necessary to communicate, at least for now
+                        ///
+                        new Padding(
+                          padding: new EdgeInsets.symmetric(
+                              horizontal: 30.0, vertical: 10.0),
+                          child: new TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            style: _inputFontStyle(),
+                            decoration: InputDecoration(
+                                hintText: "Email",
+                                prefixIcon: Icon(FontAwesomeIcons.at)),
+                            validator: (value) {
+                              ///make sure email contains @ and .
+                              if (!value.contains("@") ||
+                                  !value.contains(".")) {
+                                return "Not a valid email address";
+                              }
+                            },
+                          ),
+                        ),
+
+                        ///
+                        ///
+                        ///  Divider
+                        ///
+                        ///
 
                         new Padding(
                           padding: new EdgeInsets.symmetric(
                               vertical: 30.0, horizontal: 100.0),
-                          child: new Divider(                            
+                          child: new Divider(
                             height: 3.0,
                             color: Colors.brown,
                           ),
                         ),
-
-
 
                         /////
                         //////
@@ -165,22 +141,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: new TextFormField(
                             controller: _passwordController,
                             style: _inputFontStyle(),
-                            obscureText: true,
+                            obscureText: _passwordObscure,
                             decoration: InputDecoration(
                               prefixIcon: Icon(FontAwesomeIcons.asterisk),
                               hintText: "Password",
+                              suffixIcon: GestureDetector(
+                                child: Icon(FontAwesomeIcons.eye),
+                                onTapDown: (details) {
+                                  setState(() {
+                                    this._passwordObscure =
+                                        !this._passwordObscure;
+                                  });
+                                },
+                              ),
                             ),
-                            validator: (value){
-                             if(value.length<6){
-                               return "Password has to be at least 6 characters long.";
-                             }
+                            validator: (value) {
+                              if (value.length < 6) {
+                                return "Password has to be at least 6 characters long.";
+                              }
+                              if (value.contains(' ')) {
+                                return "Password cannot contain space.";
+                              }
                             },
                           ),
-                        
                         ),
 
-
-                         /////
+                        /////
                         //////
                         ///  Confirm Password
                         ////
@@ -191,13 +177,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: new TextFormField(
                             controller: _confirmPasswordController,
                             style: _inputFontStyle(),
-                            obscureText: true,
+                            obscureText: _confirmPasswordObscure,
                             decoration: InputDecoration(
-                               prefixIcon: Icon(FontAwesomeIcons.asterisk),
+                              prefixIcon: Icon(FontAwesomeIcons.asterisk),
                               hintText: "Confirm Password",
+                              suffixIcon: GestureDetector(
+                                child: Icon(FontAwesomeIcons.eye),
+                                onTapDown: (details) {
+                                  setState(() {
+                                    this._confirmPasswordObscure =
+                                        !this._confirmPasswordObscure;
+                                  });
+                                },
+                              ),
                             ),
-                            validator: (value){
-                              if(value != _passwordController.text){
+                            validator: (value) {
+                              if (value != _passwordController.text) {
                                 print(_passwordController.text);
                                 return "Password confirmation doesn't match";
                               }
@@ -206,7 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
 
                         ///
-                        //complete registration
+                        ///complete registration
                         ///
                         new Padding(
                           padding: new EdgeInsets.all(10.0),
@@ -217,8 +212,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             color: Colors.green,
                             onPressed: () {
-                              if(_formKey.currentState.validate()){
-                                
+                              if (_formKey.currentState.validate()) {
+                                print("Register started");
+                                API
+                                    .register(
+                                        _emailController.text.trim(),
+                                        _mobileController.text.trim(),
+                                        _passwordController.text.trim())
+                                    .then((response) {
+                                  if (response.statusCode == 500) {
+                                    dynamic body = jsonDecode(response.body);
+                                    _scaffoldKey.currentState
+                                        .showSnackBar(new SnackBar(
+                                      content: new Text(body["message"]),
+                                      duration: new Duration(seconds: 5),
+                                    ));
+                                  }
+                                });
                               }
                             },
                           ),

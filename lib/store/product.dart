@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:rxdart/rxdart.dart';
 import 'package:virga_shop/models/cart_item.dart';
+import 'package:virga_shop/network/api.dart';
 import 'package:virga_shop/store/cart/cart_bloc.dart';
 import 'package:virga_shop/store/cart/cart_provider.dart';
 import '../globals.dart';
@@ -20,6 +22,9 @@ class Product extends StatefulWidget {
 }
 
 class _ProductState extends State<Product> {
+
+  final _totalAmountStream = new BehaviorSubject<double>(seedValue: null);
+
   final _quantityTEC = new TextEditingController();
 
   GlobalKey<FormState> _form = new GlobalKey();
@@ -54,27 +59,52 @@ class _ProductState extends State<Product> {
   ///calulated total amount for the product size
   double totalAmount = 0.0;
 
-  ///
+
   /// Load the product info from the api
   /// returns a [http.Response] object containing
   /// [json] data
   Future<http.Response> _getProduct(String productID) async {
-    http.Response response =
-        await http.get(Api.URL + "/api/products/" + productID);
-    return response;
+    return API.getProduct(productID);
   }
 
   @override
   void initState() {
     super.initState();
-
-    //add a listener to the quantity form field
-    _quantityTEC.addListener(_handleQuantityChanges);
+    _quantityTEC.addListener(handleQuantityChange);
   }
 
-  void _handleQuantityChanges() {
-
+  @override
+  void dispose(){
+    _quantityTEC.dispose();
+    _totalAmountStream.close();
+    super.dispose();
   }
+
+  void handleQuantityChange(){
+
+    if(quantityType.isNotEmpty){
+
+      if(this.quantityType == QuantityTypes.pieceQuantity){
+        totalAmount = double.tryParse(_quantityTEC.text.trim()) * double.tryParse(product["quantity"]["price_per_unit"].toString());
+        _totalAmountStream.add(totalAmount);
+      }
+
+      if(this.quantityType == QuantityTypes.looseQuantity){
+        totalAmount = double.tryParse(_quantityTEC.text.trim()) * double.tryParse(product["quantity"]["values"][0]["price"].toString());
+        _totalAmountStream.add(totalAmount);
+      }
+
+      if(this.quantityType == QuantityTypes.customQuantity){    
+        List<dynamic> quantities = product["quantity"]["quantities"];
+        totalAmount =  double.tryParse(_quantityTEC.text.trim()) *  (quantities.firstWhere((item)=>item["name"] == checked[0]))["price"].toDouble();        
+        _totalAmountStream.add(totalAmount);
+      }
+
+    }
+  
+    
+  }
+
 
   //
   //
@@ -128,6 +158,7 @@ class _ProductState extends State<Product> {
                 _quantityTEC.text =
                     ((int.tryParse(_quantityTEC.text.trim()) ?? 0) + 1)
                         .toString();
+                
               },
             ),
           ),
@@ -188,8 +219,9 @@ class _ProductState extends State<Product> {
                       } else {
                         setState(() {
                           if (checked.length > 1) checked.remove(item["name"]);
-                        });
+                        });                        
                       }
+                      handleQuantityChange();
                     },
                   ))
               .toList(),
@@ -203,8 +235,9 @@ class _ProductState extends State<Product> {
   Widget quantityForm() {
     if (quantityType.isNotEmpty && quantityType != null) {
       if (quantityType == QuantityTypes.pieceQuantity) {
-        this._quantityTEC.text =
+       this._quantityTEC.text =
             double.tryParse(minimum.toString()).toInt().toString();
+        
         return pieceQuantityForm();
       } else if (quantityType == QuantityTypes.looseQuantity) {
         this._quantityTEC.text = double.tryParse(minimum.toString()).toString();
@@ -229,7 +262,7 @@ class _ProductState extends State<Product> {
         slivers: <Widget>[
           //////////////////////
           ///
-          ///  App bar is to display quick and search probably/
+          ///  App bar is to display quick and search probably
           ///
           //////////////////////
 
@@ -289,7 +322,17 @@ class _ProductState extends State<Product> {
                   ///
                   /// This one displays the total amount
                   ///
-                  new Text("₹ : $totalAmount"),
+                  new StreamBuilder<double>(
+                    stream: _totalAmountStream,
+                    builder: (context,snapshot){
+
+                      if(snapshot.hasData){
+                         return new Text("₹ : "+snapshot.data.toString());
+                      }
+
+                      return new Text("₹ : 0.0");
+                    },
+                  ),
 
                   ///
                   /// This one is the add to cart button
@@ -401,6 +444,7 @@ class _ProductState extends State<Product> {
           customQuantityName: checked[0],
           customQuantityUnits:
               double.tryParse(_quantityTEC.text.toString().trim()),
+              price: totalAmount
         );
 
         cartBloc.cartAddition.add(cartItem);
@@ -408,15 +452,17 @@ class _ProductState extends State<Product> {
       if (quantityType == QuantityTypes.pieceQuantity) {
         CartItem cartItem = new CartItem(product, quantityType,
             pieceQuantity:
-                double.tryParse(_quantityTEC.text.toString().trim()));
+                double.tryParse(_quantityTEC.text.toString().trim()),
+                price: totalAmount);
 
         cartBloc.cartAddition.add(cartItem);
       }
       if (quantityType == QuantityTypes.looseQuantity) {
         CartItem cartItem = new CartItem(product, quantityType,
             looseQuantity:
-                double.tryParse(_quantityTEC.text.toString().trim()));
-
+                double.tryParse(_quantityTEC.text.toString().trim()),
+            looseQuantityUnitName: product["quantity"]["unit_name"],
+                price: totalAmount);                        
         cartBloc.cartAddition.add(cartItem);
       }
     }

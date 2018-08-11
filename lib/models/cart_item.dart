@@ -8,6 +8,8 @@ class CartItem{
   /// loose quantity
   double looseQuantity;
 
+  String looseQuantityUnitName;
+
 
   ///custom quantity name
   String customQuantityName;
@@ -23,7 +25,7 @@ class CartItem{
   double price;
 
 
-  CartItem(this.product,this.quantityType,{this.looseQuantity,this.customQuantityName,this.customQuantityUnits,this.pieceQuantity,this.price});
+  CartItem(this.product,this.quantityType,{this.looseQuantity,this.looseQuantityUnitName,this.customQuantityName,this.customQuantityUnits,this.pieceQuantity,this.price});
 
   Map<String,Object> toJson(){
     
@@ -31,11 +33,14 @@ class CartItem{
       "productID" : product["id"],
       "quantityType" : quantityType,
       "looseQuantityValue" : looseQuantity,
+      "looseQuantityUnitName" : looseQuantityUnitName,
       "customQuantityName" : customQuantityName,
       "customQuantityUnits" : customQuantityUnits,
       "pieceQuantity" : pieceQuantity,
       "price": price
     };
   }
+
+
 
 }

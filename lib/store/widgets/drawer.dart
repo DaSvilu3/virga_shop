@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:virga_shop/store/home.dart';
 import '../../globals.dart';
 
 class SideDrawer extends StatefulWidget{
@@ -46,7 +47,9 @@ class _SideDrawerState extends State<SideDrawer>{
             new ListTile(
               title: new Text("Home"),
               leading: new Icon(FontAwesomeIcons.home),
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>new Home()), (route)=>false);
+              },
             ),
             new ListTile(
               title: new Text("My Account"),

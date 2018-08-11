@@ -5,26 +5,29 @@ import 'package:http/http.dart' as http;
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart' as URLauncher;
+import 'package:virga_shop/network/api.dart';
+import 'package:virga_shop/store/category.dart';
+import 'package:virga_shop/store/picture_order.dart';
 import './widgets/drawer.dart';
 import 'search.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:virga_shop/globals.dart';
 import 'cart.dart';
 import 'widgets/product_category.dart';
 import 'login.dart';
 import 'package:virga_shop/store/cart/cart_provider.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return new _HomeState();
   }
 }
 
 class _HomeState extends State<Home> {
+
+  String _query;
+
   @override
   Widget build(BuildContext context) {
     //return app scaffold for material design
@@ -38,7 +41,7 @@ class _HomeState extends State<Home> {
       //
       // also the logo from drawer.dart
       drawer: new SideDrawer(),
-     
+
       ////////////////////////////////////////////////////
       ///////////////
       //////////////
@@ -69,49 +72,8 @@ class _HomeState extends State<Home> {
                   ///
                   ///
                   ///
-                  await showDialog(
-                      context: this.context,
-                      builder: (BuildContext context) {
-                        return new SimpleDialog(
-                          title: new Text("Send List"),
-                          children: <Widget>[
-                            new SimpleDialogOption(
-                              child: new Row(
-                                children: <Widget>[
-                                  new Icon(Icons.camera),
-                                  Container(
-                                    padding: new EdgeInsets.all(10.0),
-                                    child: new Text("Camera"),
-                                  ),
-                                ],
-                              ),
-                              onPressed: () async {
-                                File _image = await ImagePicker.pickImage(
-                                    source: ImageSource.camera);
-
-                                if (_image == null) {
-                                  print("photo not choose");
-                                }
-                              },
-                            ),
-                            new SimpleDialogOption(
-                              child: new Row(
-                                children: <Widget>[
-                                  new Icon(Icons.photo_library),
-                                  Container(
-                                    padding: new EdgeInsets.all(10.0),
-                                    child: new Text("Gallery"),
-                                  ),
-                                ],
-                              ),
-                              onPressed: () async {
-                                File _image = await ImagePicker.pickImage(
-                                    source: ImageSource.gallery);
-                              },
-                            ),
-                          ],
-                        );
-                      });
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => new PictureOrderPage()));
                 },
               ),
               new IconButton(
@@ -126,7 +88,7 @@ class _HomeState extends State<Home> {
                 },
               ),
               new IconButton(
-                icon: new Icon(FontAwesomeIcons.shoppingBag),              
+                icon: new Icon(FontAwesomeIcons.shoppingBag),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -134,7 +96,6 @@ class _HomeState extends State<Home> {
                   );
                 },
               ),
-             
             ],
 
             //
@@ -147,14 +108,13 @@ class _HomeState extends State<Home> {
             /// //
             bottom: new PreferredSize(
               child: new Container(
-                child: new TextField(
+                child: new TextField(                  
                   decoration: new InputDecoration(
                     hintText: "Search...",
                     suffixIcon: new IconButton(
                       icon: new Icon(FontAwesomeIcons.search),
-                      onPressed: () {
-                        print("Pressed Search");
-                        openSearch("query");
+                      onPressed: () {                       
+                        openSearch(_query ?? '');
                       },
                     ),
                     contentPadding: new EdgeInsets.symmetric(
@@ -162,7 +122,7 @@ class _HomeState extends State<Home> {
                     border: InputBorder.none,
                   ),
                   onChanged: (string) {
-                    if (string.length > 2) print(string);
+                    _query = string;
                   },
                   onSubmitted: (query) {
                     openSearch(query);
@@ -191,19 +151,19 @@ class _HomeState extends State<Home> {
               delegate: new SliverChildListDelegate(<Widget>[
             //category and their items
             new FutureBuilder<http.Response>(
-
               future: loadHome(),
-              
               builder: (context, snapshot) {
-              
-                if (snapshot.hasData && snapshot.data.headers["content-type"] == 'application/json' ) {
                
-
+                if (snapshot.connectionState == ConnectionState.done &&
+                    snapshot.hasData &&
+                    snapshot.data.headers["content-type"] ==
+                        'application/json' &&
+                    snapshot.data.statusCode != 401) {
                   //list of product categories
                   List<ProductCategory> productCategories = new List();
 
                   //decode response to json object
-                  Map<String,dynamic> data = jsonDecode(snapshot.data.body);
+                  Map<String, dynamic> data = jsonDecode(snapshot.data.body);
 
                   //get banner image urls
                   List<dynamic> bannerUrls = data["banners"];
@@ -214,9 +174,9 @@ class _HomeState extends State<Home> {
                     categories = data["category"];
                     int oe = 0;
                     categories.forEach((c) {
-                    
                       productCategories.add(new ProductCategory(
-                        "Grocery",
+                        c["name"],
+                        c["id"],
                         products: c["products"],
                         color: oe % 2 != 0 ? Colors.white : Colors.black,
                       ));
@@ -224,8 +184,6 @@ class _HomeState extends State<Home> {
                       oe++;
                     });
                   }
-
-                  
 
                   return new Column(children: <Widget>[
                     //////////
@@ -238,12 +196,14 @@ class _HomeState extends State<Home> {
 
                     new SizedBox(
                       height: MediaQuery.of(context).size.height * 0.40,
-                      child: new Carousel(                        
+                      child: new Carousel(
                         dotBgColor: Colors.black12,
                         autoplay: true,
                         autoplayDuration: new Duration(seconds: 5),
-                        images: bannerUrls.map((f)=>new NetworkImage(f["name"])).toList(),
-                        dotSize: 4.0,                        
+                        images: bannerUrls
+                            .map((f) => new NetworkImage(f["name"]))
+                            .toList(),
+                        dotSize: 4.0,
                       ),
                     ),
 
@@ -285,24 +245,29 @@ class _HomeState extends State<Home> {
                                   crossAxisCount: 4,
                                   // Generate Widgets that display their index in the List
                                   children: <Widget>[
-                                    new SizedBox.expand(
-                                      child: new Column(
-                                        children: <Widget>[
-                                          new Expanded(
-                                            child: new Image.asset(
-                                                "graphics/groceries.png",
-                                                fit: BoxFit.fitHeight),
-                                          ),
-                                          new Expanded(
-                                            child: new Text(
-                                              "Groceries",
-                                              style: new TextStyle(
-                                                fontSize: 12.0,
-                                              ),
+                                    GestureDetector(
+                                      child: new SizedBox.expand(
+                                        child: new Column(
+                                          children: <Widget>[
+                                            new Expanded(
+                                              child: new Image.asset(
+                                                  "graphics/groceries.png",
+                                                  fit: BoxFit.fitHeight),
                                             ),
-                                          )
-                                        ],
+                                            new Expanded(
+                                              child: new Text(
+                                                "Groceries",
+                                                style: new TextStyle(
+                                                  fontSize: 12.0,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       ),
+                                      onTap: (){
+                                        Navigator.push(context, MaterialPageRoute( builder : (context) => new CategoryPage("5b4c8a80e05f062414001f80")));
+                                      },
                                     ),
                                     new SizedBox.expand(
                                       child: new Column(
@@ -361,15 +326,62 @@ class _HomeState extends State<Home> {
                                         ],
                                       ),
                                     ),
-                                    
                                   ]),
                             )
                           ]),
                     ),
                   ]);
+                } else if (snapshot.hasError) {
+                  return GestureDetector(
+                    child: Container(
+                      height: MediaQuery.of(context).size.height,
+                      child: new Center(
+                          child: new Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          new Icon(
+                            Icons.refresh,
+                            color: Colors.grey,
+                          ),
+                          new Text(
+                              "Error connecting to server, try again. Tap here to reload."),
+                        ],
+                      )),
+                    ),
+                    onTap: () {
+                      setState(() {});
+                    },
+                  );
                 }
                 return new Center(
-                  child: new CircularProgressIndicator(),
+                  child: FutureBuilder(
+                    future: Future.delayed(Duration(seconds: 5), () => true),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return new GestureDetector(
+                          onTap: () {
+                            print("refresh");
+                            Scaffold.of(context).showSnackBar(new SnackBar(
+                                  content: new Text("Refreshing....."),
+                                  duration: Duration(seconds: 2),
+                                ));
+                            setState(() {});
+                          },
+                          child: new InkWell(
+                            child: new Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                new Icon(Icons.refresh),
+                                Text("Tap to try again")
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                      return new CircularProgressIndicator();
+                    },
+                  ),
                 );
               },
             )
@@ -385,22 +397,25 @@ class _HomeState extends State<Home> {
   ///
 /////
   Future<http.Response> loadHome() async {
-    http.Response data = await http.get(Api.homePageUrl);
+    http.Response data = await API.getHome();
+
     return data;
   }
 
-  //////////
+  //===================================-===============
   ///
-  /// Function Called everytime a search query is made.
-  ////
+  /// Function called everytime a search query is made.
+  ///
+  //=====================================
   void openSearch(String query) {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => new SearchPage()));
+        context,
+        MaterialPageRoute(
+            builder: (context) => new SearchPage(
+                  query: query,
+                )));
   }
 }
-
-
-
 
 class Store extends StatefulWidget {
   final String title = App.TITLE;
@@ -413,51 +428,45 @@ class Store extends StatefulWidget {
 }
 
 class _StoreState extends State<Store> {
+  Future<bool> loadHome() async {
+    //  return true;
 
-   Future<bool> loadHome() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-     return true;
+    String apiKey = prefs.getString("token");
 
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // String apiKey = prefs.getString("apiKey");
-
-    // if(apiKey == null){
-    //   print("not logged in");
-    //   return false;
-    // } 
-    // else return true;
+    if (apiKey == null) {
+      print("not logged in");
+      return false;
+    } else
+      return true;
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return CartProvider(
       child: new MaterialApp(
-      theme: new ThemeData(primaryColor: Color(0XFFE2E4E6)),
-      title: widget.title,      
-      home: new FutureBuilder<bool>(
-        future: loadHome(),
-        builder: (context,snapshot){
-
-          if(snapshot.hasData){
-            if(snapshot.data == true){
-              return new Home();
-            }else{
-              return LoginScreen();
+        theme: new ThemeData(primaryColor: Color(0XFFE2E4E6)),
+        title: widget.title,
+        home: new FutureBuilder<bool>(
+          future: loadHome(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              if (snapshot.data == true) {
+                return new Home();
+              } else {
+                return LoginScreen();
+              }
             }
-          }
-        return new Scaffold(
-          body: new Center(
-            child: new CircularProgressIndicator(),
-          ),
-        );
-      },
+            return new Scaffold(
+              body: new Center(
+                child: new CircularProgressIndicator(),
+              ),
+            );
+          },
+        ),
       ),
-    ),
     );
   }
- 
 }

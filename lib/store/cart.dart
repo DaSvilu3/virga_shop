@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virga_shop/globals.dart';
 import 'package:virga_shop/models/cart_item.dart';
 import './widgets/drawer.dart';
@@ -15,14 +16,16 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
+  final _scaffold = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      key: _scaffold,
       drawer: SideDrawer(),
       body: CustomScrollView(
         slivers: <Widget>[
           new SliverAppBar(
-            elevation: 3.0,
+            elevation: 20.0,
             title: new Text("Shopping Cart"),
             snap: true,
             floating: true,
@@ -35,18 +38,40 @@ class _CartState extends State<Cart> {
                       new Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
-                          new Text(
-                            "Total: Rs. 210 ",
-                            style: new TextStyle(
-                                color: Colors.deepOrange,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 25.0),
+                          new StreamBuilder<double>(
+                            stream: CartProvider.of(context).totalAmount,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return new Text(
+                                  "Total: " + snapshot.data.toString(),
+                                  style: new TextStyle(
+                                      color: Colors.deepOrange,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 25.0),
+                                );
+                              }
+                              return new Text(
+                                "Total: ",
+                                style: new TextStyle(
+                                    color: Colors.deepOrange,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 25.0),
+                              );
+                            },
                           ),
                           new RaisedButton(
                             child: new Text(
                               "Checkout",
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              if (CartProvider.of(context).placeOrder()) {
+                                _scaffold.currentState
+                                    .showSnackBar(new SnackBar(
+                                  content: new Text("Order has been placed"),
+                                  duration: new Duration(seconds: 3),
+                                ));
+                              }
+                            },
                           )
                         ],
                       )
@@ -81,9 +106,20 @@ class _CartState extends State<Cart> {
       stream: cartBloc.items,
       builder: (context, snapshot) {
         if (snapshot.data == null || snapshot.data.isEmpty) {
-          return Center(
-              child:
-                  Text('Empty', style: Theme.of(context).textTheme.display1));
+          return Container(
+            padding: EdgeInsets.symmetric(vertical: 40.0),
+            child: new Column(
+              children: <Widget>[
+                new Icon(
+                  FontAwesomeIcons.cartArrowDown,
+                  size: 50.0,
+                ),
+                Center(
+                    child: Text('Your cart is empty.',
+                        style: Theme.of(context).textTheme.display1))
+              ],
+            ),
+          );
         }
 
         return Column(
@@ -93,16 +129,19 @@ class _CartState extends State<Cart> {
   }
 
   Widget cartItem(CartItem item) {
-    if(item.quantityType == QuantityTypes.customQuantity ){
-      return customQuantityItem(item);
+    if (item.quantityType == QuantityTypes.customQuantity) {
+      return new Card(
+        child: customQuantityItem(item),
+      );
     }
 
-    return quantityItem(item);
-    
+    return new Card(
+      child: quantityItem(item),
+    );
   }
 
-  Widget quantityItem(CartItem item){
-    return  new Container(
+  Widget quantityItem(CartItem item) {
+    return new Container(
       height: MediaQuery.of(context).size.height * 0.14,
       child: new Row(
         children: <Widget>[
@@ -114,21 +153,32 @@ class _CartState extends State<Cart> {
           ),
           new Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[              
+            children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: new Text(
-                  item.product["name"],                
+                  item.product["name"],
                   style: TextStyle(fontSize: 16.0),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: new Text(
-                  item.quantityType == QuantityTypes.looseQuantity ? item.looseQuantity.toString(): item.pieceQuantity.toInt().toString(),                
+                  item.quantityType == QuantityTypes.looseQuantity
+                      ? (item.looseQuantity.toString() +
+                          ' ' +
+                          (item.looseQuantityUnitName ?? ''))
+                      : item.pieceQuantity.toInt().toString(),
                   style: TextStyle(fontSize: 12.0),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: new Text(
+                  "₹ : " + item.price.toString(),
+                  style: TextStyle(fontSize: 12.0),
+                ),
+              )
             ],
           )
         ],
@@ -136,10 +186,11 @@ class _CartState extends State<Cart> {
     );
   }
 
-  Widget customQuantityItem(CartItem item){
-    return  new Container(
+  Widget customQuantityItem(CartItem item) {
+    return new Container(
       height: MediaQuery.of(context).size.height * 0.14,
       child: new Row(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           new SizedBox(
             width: MediaQuery.of(context).size.width * 0.3,
@@ -148,18 +199,28 @@ class _CartState extends State<Cart> {
             ),
           ),
           new Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: new Text(
-                  item.product["name"],                
+                  item.product["name"],
                   style: TextStyle(fontSize: 16.0),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: new Text(
-                  item.customQuantityUnits.toInt().toString()+' - '+item.customQuantityName,                
+                  item.customQuantityUnits.toInt().toString() +
+                      ' - ' +
+                      item.customQuantityName,
+                  style: TextStyle(fontSize: 12.0),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: new Text(
+                  "₹ : " + item.price.toString(),
                   style: TextStyle(fontSize: 12.0),
                 ),
               ),

@@ -12,7 +12,7 @@ dependencies:
   http: ^0.11.3+16
   font_awesome_flutter: 6.0.0  
   
-  carousel_pro: "^0.0.12"
+  carousel_pro: "^0.0.13"
 
   url_launcher: "^3.0.2"
 

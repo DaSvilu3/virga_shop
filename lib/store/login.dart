@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'register.dart';
-import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
+import 'package:virga_shop/network/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'home.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -29,33 +31,49 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+
+  /// Login into server using the username and password provided by the users
   Future<String> login(String username, String password) async {
-    Map<String, String> headers = {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    };
+    //try login to server
+    API.login(username, password).then((reponse) {
 
-    dynamic body = jsonEncode({"username": username, "password": password});
-
-    await http
-        .post('http://10.0.2.2/VirgaApi/public/api/login_check',
-            body: body, headers: headers)
-        .then((response) {
-      dynamic responseBody = jsonDecode(response.body);
-
-      if (responseBody["code"] != null) {
-        if (responseBody["code"] == 401) {
-          _scaffoldKey.currentState.showSnackBar(new SnackBar(
-            content: new Text("Login failed, wrong username or password."),
-            duration: Duration(seconds: 2),
-          ));
-        }
-      }
-      if (responseBody["token"] != null) {
+      //if status code 401 is returened then 
+      // it  is bad crediantial error,
+      if (reponse.statusCode == 401) {
         _scaffoldKey.currentState.showSnackBar(new SnackBar(
-          content: new Text("Login Successful."),
-          duration: new Duration(seconds: 2),
+          content: new Text("Login failed, try again."),
+          duration: Duration(seconds: 1),
         ));
+        return null;
+      }
+      return jsonDecode(reponse.body);
+    }).then((responseBody) async {
+
+      //if response is not null and has a token field then we have successfully logged in
+      if (responseBody != null) {
+        if (responseBody["token"] != null) {
+
+          //create a snackbar to notify user that he/she has successfully logged in
+          _scaffoldKey.currentState.showSnackBar(new SnackBar(
+            content: new Text("Login Successful."),
+            duration: new Duration(seconds: 1),
+          ));
+
+          //using shared preference we now store the token and credential in sharedprefs
+          //for the future uses, we will need token in every request
+          // and credential to [reAuth] in case the token expires.
+          SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+          await sharedPreferences.setString("token", responseBody["token"]);
+          await sharedPreferences.setString("_username",username);
+          await sharedPreferences.setString("_password",password);
+
+          //now that we have done everything right we will now head to the home screen of the app
+
+          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=> new Home() ), (route)=>false);
+          
+
+          
+        }
       }
     });
 
@@ -175,11 +193,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     .showSnackBar(new SnackBar(
                                   content:
                                       new Text("Logging in, please wait..."),
-                                  duration: new Duration(seconds: 3),
+                                  duration: new Duration(seconds: 1),
                                 ));
                               }
-                              login(_usernameTextEditingController.text,
-                                  _passwordTextEditingController.text);
+                              login(_usernameTextEditingController.text.trim(),
+                                  _passwordTextEditingController.text.trim());
                             },
                           ),
                         ),

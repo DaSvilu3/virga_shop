@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_networkimage/zoomable_widget.dart';
 import 'package:virga_shop/store/cart/cart_bloc.dart';
 import 'package:virga_shop/store/cart/cart_provider.dart';
+import 'package:virga_shop/store/category.dart';
 import 'dart:async';
 import '../product.dart';
 import '../../globals.dart';
@@ -10,10 +11,11 @@ import 'package:virga_shop/models/cart_item.dart';
 
 class ProductCategory extends StatefulWidget {
   final String _categoryName;
+  final String _categoryID;
   final Color color;
   final List<dynamic> products;
 
-  ProductCategory(this._categoryName, {this.color, this.products});
+  ProductCategory(this._categoryName, this._categoryID, {this.color, this.products});
 
   @override
   State<StatefulWidget> createState() => new _ProductCategory();
@@ -37,18 +39,23 @@ class _ProductCategory extends State<ProductCategory> {
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  return new Card(
-                      margin: new EdgeInsets.all(10.0),
-                      child: new SizedBox(
-                        child: new Center(
-                          child: new Text(
-                            "+ More \n" + widget._categoryName,
-                            textAlign: TextAlign.center,
+                  return GestureDetector(
+                    child: new Card(
+                        margin: new EdgeInsets.all(10.0),
+                        child: new SizedBox(
+                          child: new Center(
+                            child: new Text(
+                              "+ More \n" + widget._categoryName,
+                              textAlign: TextAlign.center,
+                            ),
                           ),
-                        ),
-                        width: MediaQuery.of(context).size.width / 5,
-                        height: MediaQuery.of(context).size.width / 5,
-                      ));
+                          width: MediaQuery.of(context).size.width / 5,
+                          height: MediaQuery.of(context).size.width / 5,
+                        )),
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> new CategoryPage(widget._categoryID)));
+                    },
+                  );
                 }
                 if (index <= widget.products.length)
                   return new GestureDetector(
@@ -169,6 +176,7 @@ class _ProductCategory extends State<ProductCategory> {
 ///
 typedef void AddToCart(
     {double looseQuantity,
+    String looseQuantityUnitName,
     double pieceQuantity,
     String customQuantityName,
     double customQuantityUnit,
@@ -181,9 +189,10 @@ typedef void AddToCart(
 ///
 /// it mainly has three types
 ///
-/// 1) Loose Quanity,
 ///
-/// 2) Custom Quanity,
+/// 1) Custom Quanity,
+///
+/// 2) Loose Quanity,
 ///
 /// 3) Piece Quantity
 ///
@@ -207,6 +216,7 @@ class _QuantityPromptState extends State<QuantityPrompt> {
 
   void addToCart(
       {double looseQuantity,
+      String looseQuantityUnitName,
       double pieceQuantity,
       String customQuantityName,
       double customQuantityUnit,
@@ -216,7 +226,8 @@ class _QuantityPromptState extends State<QuantityPrompt> {
 
     if (quantityType == QuantityTypes.looseQuantity) {
       item = new CartItem(widget.product, quantityType,
-          looseQuantity: looseQuantity);
+          looseQuantity: looseQuantity,
+          looseQuantityUnitName: looseQuantityUnitName);
     }
     if (quantityType == QuantityTypes.customQuantity) {
       item = new CartItem(widget.product, quantityType,
@@ -227,6 +238,8 @@ class _QuantityPromptState extends State<QuantityPrompt> {
       item = new CartItem(widget.product, quantityType,
           pieceQuantity: pieceQuantity);
     }
+
+    item.price = price;
 
     cartBloc.cartAddition.add(item);
   }
@@ -306,6 +319,8 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
     super.initState();
     _quantityTEC.text = widget.minimum.toInt().toString();
     _quantityTEC.addListener(_updatedQuantity);
+    _totalAmount = double.tryParse(
+        widget.product["quantity"]["quantities"][0]["price"].toString());
   }
 
   void _updatedQuantity() {
@@ -564,10 +579,13 @@ class _LooseQuantityState extends State<LooseQuantity> {
                     if (_formKey.currentState.validate()) {
                       //iff loose quantity is set and is valid
                       //then add to cart
+
                       widget.addToCart(
                           looseQuantity:
                               double.tryParse(_quantityValueTEC.text.trim()),
-                          price: _totalAmount);
+                          price: _totalAmount,
+                          looseQuantityUnitName: widget.product["quantity"]
+                              ["unit_name"]);
                     }
                   },
                 )
