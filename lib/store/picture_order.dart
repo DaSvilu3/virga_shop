@@ -1,12 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:virga_shop/globals.dart' as Global;
 import 'package:rxdart/subjects.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:virga_shop/store/widgets/picture_picker.dart';
+import 'package:virga_shop/store/dialogs/picture_picker.dart';
 
 class PictureOrderPage extends StatefulWidget {
   PictureOrderPage();
@@ -42,11 +43,41 @@ class PictureOrderBody extends StatefulWidget {
 class _PictureOrderBodyState extends State<PictureOrderBody> {
   final imageFileStream = new BehaviorSubject<File>(seedValue: null);
 
+  _showDeliveryOptionsDialog() async {
+    return await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return new SimpleDialog(
+            title: new Text("Delivery Options"),
+            children: <Widget>[
+              SimpleDialogOption(                
+                child: new Row(                  
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.home),
+                    Container(padding: new EdgeInsets.all(10.0),child: new Text("Home Delivery")),
+                  ],
+                ),
+                onPressed: (){},
+              ),
+              SimpleDialogOption(
+                   child: new Row(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.buildingO),
+                    Container(padding: new EdgeInsets.all(10.0),child: new Text("Pick up from Mart")),
+                  ],
+                ),
+                onPressed: (){},
+              )
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
-    PicturePicker().dialog(context).then((_image){      
+    PicturePicker().dialog(context).then((_image) {
       imageFileStream.add(_image);
-      });
+    });
     return new Column(
       children: <Widget>[
         new Row(
@@ -102,24 +133,25 @@ class _PictureOrderBodyState extends State<PictureOrderBody> {
             elevation: 30.0,
             color: Colors.grey,
             icon: Icon(Icons.done),
-            label: new Text("Place Order",
-            style: TextStyle(
-              color: Colors.pink
-            ),),
+            label: new Text(
+              "Place Order",
+              style: TextStyle(color: Colors.pink),
+            ),
             onPressed: () {
-              print("Started upload");
-              var url = Uri.parse(Global.Api.pictureOrderUrl);
-              http.MultipartRequest request = new http.MultipartRequest("POST", url);
-              imageFileStream.listen((onData){
-                print("Reached stream for $url");
-                request.files.add(new http.MultipartFile.fromBytes("image", onData.readAsBytesSync(),filename: onData.path));
-                request.send().then((response){               
-                  if(response.statusCode == 200){
-                  
-                  }
-                });
-              });
-              
+              // print("Started upload");
+              // var url = Uri.parse(Global.Api.pictureOrderUrl);
+              // http.MultipartRequest request = new http.MultipartRequest("POST", url);
+              // imageFileStream.listen((onData){
+              //   print("Reached stream for $url");
+              //   request.files.add(new http.MultipartFile.fromBytes("image", onData.readAsBytesSync(),filename: onData.path));
+              //   request.send().then((response){
+              //     if(response.statusCode == 200){
+
+              //     }
+              //   });
+              // });
+
+              _showDeliveryOptionsDialog();
 
               //request.files.add()
             },

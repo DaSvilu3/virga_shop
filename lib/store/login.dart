@@ -31,13 +31,11 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-
   /// Login into server using the username and password provided by the users
   Future<String> login(String username, String password) async {
     //try login to server
     API.login(username, password).then((reponse) {
-
-      //if status code 401 is returened then 
+      //if status code 401 is returened then
       // it  is bad crediantial error,
       if (reponse.statusCode == 401) {
         _scaffoldKey.currentState.showSnackBar(new SnackBar(
@@ -48,11 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
       }
       return jsonDecode(reponse.body);
     }).then((responseBody) async {
-
       //if response is not null and has a token field then we have successfully logged in
       if (responseBody != null) {
         if (responseBody["token"] != null) {
-
           //create a snackbar to notify user that he/she has successfully logged in
           _scaffoldKey.currentState.showSnackBar(new SnackBar(
             content: new Text("Login Successful."),
@@ -62,17 +58,17 @@ class _LoginScreenState extends State<LoginScreen> {
           //using shared preference we now store the token and credential in sharedprefs
           //for the future uses, we will need token in every request
           // and credential to [reAuth] in case the token expires.
-          SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+          SharedPreferences sharedPreferences =
+              await SharedPreferences.getInstance();
           await sharedPreferences.setString("token", responseBody["token"]);
-          await sharedPreferences.setString("_username",username);
-          await sharedPreferences.setString("_password",password);
+          await sharedPreferences.setString("_username", username);
+          await sharedPreferences.setString("_password", password);
 
           //now that we have done everything right we will now head to the home screen of the app
 
-          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=> new Home() ), (route)=>false);
-          
-
-          
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => new HomeScreen()),
+              (route) => false);
         }
       }
     });
@@ -92,9 +88,20 @@ class _LoginScreenState extends State<LoginScreen> {
             child: new Container(
               padding: EdgeInsets.all(10.0),
               color: Colors.white12,
-              child: new Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: new ListView(
+                scrollDirection: Axis.vertical,
                 children: <Widget>[
+                  Container(
+                    margin: new EdgeInsets.fromLTRB(.0, 40.0, .0, 40.0),
+                    child: new Column(
+                      children: <Widget>[
+                        new SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          child: new Image.asset('graphics/logo.jpg'),
+                        ),
+                      ],
+                    ),
+                  ),
                   new Form(
                     key: _formKey,
                     child: new Column(

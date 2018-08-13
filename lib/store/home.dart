@@ -17,14 +17,14 @@ import 'login.dart';
 import 'package:virga_shop/store/cart/cart_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Home extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return new _HomeState();
+    return new _HomeScreenState();
   }
 }
 
-class _HomeState extends State<Home> {
+class _HomeScreenState extends State<HomeScreen> {
 
   String _query;
 
@@ -87,6 +87,8 @@ class _HomeState extends State<Home> {
                   }
                 },
               ),
+              
+
               new IconButton(
                 icon: new Icon(FontAwesomeIcons.shoppingBag),
                 onPressed: () {
@@ -192,7 +194,7 @@ class _HomeState extends State<Home> {
                     ///    Pictures will always be in motion,
                     ///    When user touches any of them
                     ///    He will be redirected to that particular.
-                    /// ...
+                    /// 
 
                     new SizedBox(
                       height: MediaQuery.of(context).size.height * 0.40,
@@ -454,7 +456,7 @@ class _StoreState extends State<Store> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (snapshot.data == true) {
-                return new Home();
+                return new HomeScreen();
               } else {
                 return LoginScreen();
               }

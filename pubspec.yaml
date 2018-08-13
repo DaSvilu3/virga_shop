@@ -46,6 +46,7 @@ flutter:
     - graphics/vegetables.png
     - graphics/place1.jpg
     - graphics/cube.png
+    - graphics/logo.jpg
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

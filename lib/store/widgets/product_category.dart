@@ -692,10 +692,9 @@ class _PieceQuantityState extends State<PieceQuantity> {
                   child: new SizedBox(
                     width: MediaQuery.of(context).size.width * 0.2,
                     child: new TextFormField(
-                      autofocus: true,
                       controller: this._quantityTEC,
                       keyboardType: TextInputType.numberWithOptions(
-                          decimal: false, signed: false),
+                          decimal: false, signed: false),                          
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(hintText: "Quantity"),
                       validator: (value) {

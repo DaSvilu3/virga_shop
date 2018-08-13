@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virga_shop/store/home.dart';
+import 'package:virga_shop/store/login.dart';
+import 'package:virga_shop/store/picture_order.dart';
 import '../../globals.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
+import 'package:url_launcher/url_launcher.dart' as URLauncher;
 
 class SideDrawer extends StatefulWidget{
 
@@ -48,7 +53,7 @@ class _SideDrawerState extends State<SideDrawer>{
               title: new Text("Home"),
               leading: new Icon(FontAwesomeIcons.home),
               onTap: () {
-                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>new Home()), (route)=>false);
+                Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>new HomeScreen()), (route)=>false);
               },
             ),
             new ListTile(
@@ -60,6 +65,42 @@ class _SideDrawerState extends State<SideDrawer>{
               title: new Text("My Orders"),
               leading: new Icon(FontAwesomeIcons.truck),
               onTap: () {},
+            ),
+
+             new Divider(),
+
+             new ListTile(
+              title: new Text("Picture Order"),
+              leading: new Icon(FontAwesomeIcons.camera),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>PictureOrderPage()));
+              },
+            ),
+             new ListTile(
+              title: new Text("Call"),
+              leading: new Icon(Icons.phone),
+              onTap: () async {
+                  const url = 'tel:+91 888877755';
+                  if (await URLauncher.canLaunch(url)) {
+                    await URLauncher.launch(url);
+                  } else {
+                    throw 'Could not launch $url';
+                  }
+                },
+            ),
+
+             new Divider(),
+             new ListTile(
+              title: new Text("Sign Out"),
+              leading: new Icon(FontAwesomeIcons.signOutAlt),
+              onTap: () {
+                SharedPreferences.getInstance().then((sharedPref){
+                  sharedPref.remove("token").then((sharedPref){
+                      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>LoginScreen()), (bool)=>false );
+                  });
+                });
+              
+              },
             ),
           ],
         ),
