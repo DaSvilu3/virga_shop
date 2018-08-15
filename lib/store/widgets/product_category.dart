@@ -180,7 +180,7 @@ typedef void AddToCart(
     double pieceQuantity,
     String customQuantityName,
     double customQuantityUnit,
-    double price});
+    double amount});
 
 ///
 /// What is quantityPrompt?
@@ -220,7 +220,7 @@ class _QuantityPromptState extends State<QuantityPrompt> {
       double pieceQuantity,
       String customQuantityName,
       double customQuantityUnit,
-      double price}) {
+      double amount}) {
     CartItem item;
     String quantityType = widget.product["quantity"]["type"];
 
@@ -232,14 +232,14 @@ class _QuantityPromptState extends State<QuantityPrompt> {
     if (quantityType == QuantityTypes.customQuantity) {
       item = new CartItem(widget.product, quantityType,
           customQuantityName: customQuantityName,
-          customQuantityUnits: customQuantityUnit);
+          customQuantity: customQuantityUnit);
     }
     if (quantityType == QuantityTypes.pieceQuantity) {
       item = new CartItem(widget.product, quantityType,
           pieceQuantity: pieceQuantity);
     }
 
-    item.price = price;
+    item.amount = amount;
 
     cartBloc.cartAddition.add(item);
   }
@@ -412,7 +412,7 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
                     customQuantityName: this.checked[0],
                     customQuantityUnit:
                         double.tryParse(_quantityTEC.text.trim()),
-                    price: _totalAmount);
+                    amount: _totalAmount);
               }
             },
           )
@@ -583,7 +583,7 @@ class _LooseQuantityState extends State<LooseQuantity> {
                       widget.addToCart(
                           looseQuantity:
                               double.tryParse(_quantityValueTEC.text.trim()),
-                          price: _totalAmount,
+                          amount: _totalAmount,
                           looseQuantityUnitName: widget.product["quantity"]
                               ["unit_name"]);
                     }
@@ -636,6 +636,7 @@ class _PieceQuantityState extends State<PieceQuantity> {
     super.initState();
     _quantityTEC.text = widget.minimum.toInt().toString();
     _quantityTEC.addListener(this._updatedQuantity);
+    this._updatedQuantity();
   }
 
   @override
@@ -748,7 +749,7 @@ class _PieceQuantityState extends State<PieceQuantity> {
             if (_form.currentState.validate()) {
               widget.addToCart(
                   pieceQuantity: double.tryParse(_quantityTEC.text.trim()),
-                  price: _totalAmount);
+                  amount: _totalAmount);
             }
           },
         )

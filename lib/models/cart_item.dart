@@ -15,29 +15,29 @@ class CartItem{
   String customQuantityName;
 
   ///custom quantity units
-  double customQuantityUnits;
+  double customQuantity;
 
 
   /// piece quantity;
   double pieceQuantity;
 
   /// price calculated
-  double price;
+  double amount;
 
 
-  CartItem(this.product,this.quantityType,{this.looseQuantity,this.looseQuantityUnitName,this.customQuantityName,this.customQuantityUnits,this.pieceQuantity,this.price});
+  CartItem(this.product,this.quantityType,{this.looseQuantity,this.looseQuantityUnitName,this.customQuantityName,this.customQuantity,this.pieceQuantity,this.amount});
 
   Map<String,Object> toJson(){
     
     return {
-      "productID" : product["id"],
+      "id" : product["id"],
       "quantityType" : quantityType,
-      "looseQuantityValue" : looseQuantity,
+      "looseQuantity" : looseQuantity,
       "looseQuantityUnitName" : looseQuantityUnitName,
       "customQuantityName" : customQuantityName,
-      "customQuantityUnits" : customQuantityUnits,
+      "customQuantity" : customQuantity,
       "pieceQuantity" : pieceQuantity,
-      "price": price
+      "amount": amount
     };
   }
 

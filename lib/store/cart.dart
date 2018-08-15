@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virga_shop/globals.dart';
 import 'package:virga_shop/models/cart_item.dart';
+import 'package:virga_shop/store/place_order.dart';
 import './widgets/drawer.dart';
 import 'package:virga_shop/store/cart/cart_bloc.dart';
 import 'package:virga_shop/store/cart/cart_provider.dart';
@@ -64,13 +65,7 @@ class _CartState extends State<Cart> {
                               "Checkout",
                             ),
                             onPressed: () {
-                              if (CartProvider.of(context).placeOrder()) {
-                                _scaffold.currentState
-                                    .showSnackBar(new SnackBar(
-                                  content: new Text("Order has been placed"),
-                                  duration: new Duration(seconds: 3),
-                                ));
-                              }
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>PlaceOrderScreen()));
                             },
                           )
                         ],
@@ -175,7 +170,7 @@ class _CartState extends State<Cart> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: new Text(
-                  "₹ : " + item.price.toString(),
+                  "₹ : " + item.amount.toString(),
                   style: TextStyle(fontSize: 12.0),
                 ),
               )
@@ -211,7 +206,7 @@ class _CartState extends State<Cart> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: new Text(
-                  item.customQuantityUnits.toInt().toString() +
+                  item.customQuantity.toInt().toString() +
                       ' - ' +
                       item.customQuantityName,
                   style: TextStyle(fontSize: 12.0),
@@ -220,7 +215,7 @@ class _CartState extends State<Cart> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: new Text(
-                  "₹ : " + item.price.toString(),
+                  "₹ : " + item.amount.toString(),
                   style: TextStyle(fontSize: 12.0),
                 ),
               ),

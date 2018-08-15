@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:virga_shop/models/cart.dart';
 import 'package:virga_shop/models/search_result.dart';
 import 'package:virga_shop/globals.dart' as Globals;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:virga_shop/models/user_address.dart';
 
 class API {
   static const String tokenExpired = "Expired JWT Token";
@@ -82,6 +84,9 @@ class API {
 
   }
 
+  //Pass asll the get requests trough here to make sure
+  //it doesn't fail after first authentication 
+
   static Future<http.Response> gatewayGet(String url) async {
     var token = await SharedPreferences
         .getInstance()
@@ -130,6 +135,15 @@ class API {
     return await gatewayGet(Globals.Api.categoryUrl + '/' + categoryID);
   }
 
+  ///
+  ///
+  /// Get User addresses
+  ///
+  ///
+  static Future<http.Response> getCurrentUserAddresses() async{
+    return await gatewayGet(Globals.Api.currentUserAddressUrl);
+  }
+
   ///Retreives search result for [String] query
   static Future<List<SearchResult>> search(String query) async {
     List<SearchResult> searchResults = new List();
@@ -147,6 +161,52 @@ class API {
     }
 
     return searchResults;
+  }
+
+
+
+
+  ///method to post request, we pass them through this, 
+  ///to make it possible to reauth and try again
+
+  static Future<http.Response> postGateway(String url, dynamic body) async{
+    var token = await SharedPreferences
+        .getInstance()
+        .then((sharedPref) => sharedPref.get("token"));
+
+    Map<String, String> headers = {"Authorization": "Bearer $token"};
+
+    http.Response response = await http.post(url, headers: headers,body: body);
+
+    if (response.statusCode == 401) {
+      dynamic body = jsonDecode(response.body);
+      if (body["message"] == tokenExpired) {
+        
+        print("Token Expired");
+        await reAuth().then((authenticated){
+          if(authenticated){
+            return postGateway(url,body);
+          }
+        });
+      }
+    }
+
+    return response;        
+  }
+
+
+  ///Method to place order from the cart items
+  /// takes [API.url] string and [Cart] model 
+  /// returns [http.Response
+  static Future<http.Response> postOrder(Cart item) async {
+    return await postGateway(Globals.Api.placeOrderUrl, jsonEncode(item));
+  }
+
+
+  ///Post a new User Address to current user profile
+  /// Takes [models.UserAddress] and return [http.Response]
+  static Future<http.Response> postAddress(UserAddress address) async{
+    return await postGateway(Globals.Api.currentUserAddressUrl,jsonEncode(address));
   }
 
 }

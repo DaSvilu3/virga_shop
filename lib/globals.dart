@@ -21,5 +21,7 @@ class Api{
   static const String registerUrl = URL+'/api/register';
   static const String productsUrl = URL+'/api/products';
   static const String categoryUrl = URL+'/api/product_categories';
+  static const String placeOrderUrl = URL + '/api/orders';
+  static const String currentUserAddressUrl = URL + '/api/user/addresses';
   
 }

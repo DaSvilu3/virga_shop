@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:virga_shop/models/cart.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:virga_shop/models/cart_item.dart';
+import 'package:virga_shop/network/api.dart';
+import 'package:http/http.dart' as http;
 
 class CartAddition {
   String productID;
@@ -38,7 +40,7 @@ class CartBloc {
 
       _items.add(_cart.items);
 
-      amount += addition.price;
+      amount += addition.amount;
 
       _totalAmount.add(amount);
     });
@@ -53,10 +55,12 @@ class CartBloc {
   Stream<double> get totalAmount => _totalAmount;
 
 
-  bool placeOrder(){
-    _cart.items.clear();
-    _items.add(_cart.items);
-    _totalAmount.add(0.0);
+  Future<bool> placeOrder() async {
+
+    http.Response response = await API.postOrder(_cart);
+
+    print(response.body);
+   
     return true;
   }
 

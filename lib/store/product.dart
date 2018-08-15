@@ -442,9 +442,9 @@ class _ProductState extends State<Product> {
           product,
           quantityType,
           customQuantityName: checked[0],
-          customQuantityUnits:
+          customQuantity:
               double.tryParse(_quantityTEC.text.toString().trim()),
-              price: totalAmount
+              amount: totalAmount
         );
 
         cartBloc.cartAddition.add(cartItem);
@@ -453,7 +453,7 @@ class _ProductState extends State<Product> {
         CartItem cartItem = new CartItem(product, quantityType,
             pieceQuantity:
                 double.tryParse(_quantityTEC.text.toString().trim()),
-                price: totalAmount);
+                amount: totalAmount);
 
         cartBloc.cartAddition.add(cartItem);
       }
@@ -462,7 +462,7 @@ class _ProductState extends State<Product> {
             looseQuantity:
                 double.tryParse(_quantityTEC.text.toString().trim()),
             looseQuantityUnitName: product["quantity"]["unit_name"],
-                price: totalAmount);                        
+                amount: totalAmount);                        
         cartBloc.cartAddition.add(cartItem);
       }
     }

@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virga_shop/store/home.dart';
 import 'package:virga_shop/store/login.dart';
 import 'package:virga_shop/store/picture_order.dart';
+import 'package:virga_shop/user_orders.dart';
 import '../../globals.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
@@ -64,7 +65,9 @@ class _SideDrawerState extends State<SideDrawer>{
             new ListTile(
               title: new Text("My Orders"),
               leading: new Icon(FontAwesomeIcons.truck),
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>UserOrdersScreen()));
+              },
             ),
 
              new Divider(),
