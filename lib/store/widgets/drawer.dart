@@ -3,10 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virga_shop/store/home.dart';
 import 'package:virga_shop/store/login.dart';
 import 'package:virga_shop/store/picture_order.dart';
-import 'package:virga_shop/user_orders.dart';
+import 'package:virga_shop/store/user_orders.dart';
 import '../../globals.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:async';
 import 'package:url_launcher/url_launcher.dart' as URLauncher;
 
 class SideDrawer extends StatefulWidget{

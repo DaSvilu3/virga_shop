@@ -23,5 +23,11 @@ class Api{
   static const String categoryUrl = URL+'/api/product_categories';
   static const String placeOrderUrl = URL + '/api/orders';
   static const String currentUserAddressUrl = URL + '/api/user/addresses';
+  static const String currentUserOrdersUrl = URL + '/api/user/orders';
   
+}
+
+class PaymentModes{
+  static const String cashOnDelivery = "cash_on_delivery";
+  static const String pickBySelf = "pick_by_self";
 }

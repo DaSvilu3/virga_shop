@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:virga_shop/models/cart.dart';
 import 'package:virga_shop/models/search_result.dart';
@@ -77,6 +78,7 @@ class API {
       if(jsonBody["token"]!=null){
         print("Reauth Successfully");
         await sharedPreferences.setString("token", jsonBody["token"]);
+        return true;
       }
     }
     
@@ -144,6 +146,16 @@ class API {
     return await gatewayGet(Globals.Api.currentUserAddressUrl);
   }
 
+
+  ///
+  /// Get user orders placed , including both normal and picture orders
+  ///
+  static Future<http.Response> getUserOrders() async{
+    return await gatewayGet(Globals.Api.currentUserOrdersUrl);
+  } 
+
+
+
   ///Retreives search result for [String] query
   static Future<List<SearchResult>> search(String query) async {
     List<SearchResult> searchResults = new List();
@@ -183,7 +195,7 @@ class API {
       if (body["message"] == tokenExpired) {
         
         print("Token Expired");
-        await reAuth().then((authenticated){
+        return await reAuth().then((authenticated){
           if(authenticated){
             return postGateway(url,body);
           }
@@ -198,8 +210,8 @@ class API {
   ///Method to place order from the cart items
   /// takes [API.url] string and [Cart] model 
   /// returns [http.Response
-  static Future<http.Response> postOrder(Cart item) async {
-    return await postGateway(Globals.Api.placeOrderUrl, jsonEncode(item));
+  static Future<http.Response> postOrder(Cart cart) async {
+    return await postGateway(Globals.Api.placeOrderUrl, jsonEncode(cart));
   }
 
 
@@ -208,6 +220,47 @@ class API {
   static Future<http.Response> postAddress(UserAddress address) async{
     return await postGateway(Globals.Api.currentUserAddressUrl,jsonEncode(address));
   }
+
+
+  ///
+  /// Post picture order, 
+  /// This is completely different from traditional request.
+  ///
+  static Future<bool> postPictureOrder(File image, String paymentMode, UserAddress shippingAddress) async{
+    
+    var url = Uri.parse(Globals.Api.pictureOrderUrl);
+
+    http.MultipartRequest request = new http.MultipartRequest("POST", url);
+
+    //get token
+    var token = await SharedPreferences
+        .getInstance()
+        .then((sharedPref) => sharedPref.get("token"));
+
+
+    //set headers
+    Map<String, String> headers = {"Authorization": "Bearer $token"};
+    request.headers.addAll(headers);
+
+    //set fields
+    Map<String,String> fields = {
+      "paymentMode" : paymentMode,
+      "shippingAddress" : jsonEncode(shippingAddress.toJson())
+    };
+
+    request.fields.addAll(fields);  
+
+    request.files.add(new http.MultipartFile.fromBytes("image", image.readAsBytesSync(),filename: image.path));
+
+    return await request.send().then((response){
+      if(response.statusCode == 200){
+        return true;
+      }else{
+        return false;
+      }
+    });    
+  }
+
 
 }
 

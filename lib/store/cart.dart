@@ -65,7 +65,12 @@ class _CartState extends State<Cart> {
                               "Checkout",
                             ),
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>PlaceOrderScreen()));
+                              if(CartProvider.of(context).count < 1){
+                                _scaffold.currentState.showSnackBar(new SnackBar(content: new Text("No items in the cart."),));
+                              }
+                              else{
+                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>PlaceOrderScreen()));
+                              }                             
                             },
                           )
                         ],

@@ -2,14 +2,8 @@ import 'dart:async';
 import 'package:virga_shop/models/cart.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:virga_shop/models/cart_item.dart';
+import 'package:virga_shop/models/user_address.dart';
 import 'package:virga_shop/network/api.dart';
-import 'package:http/http.dart' as http;
-
-class CartAddition {
-  String productID;
-
-  CartAddition(this.productID);
-}
 
 class CartBloc {
   int count = 0;
@@ -30,20 +24,7 @@ class CartBloc {
       StreamController<CartItem>();
 
   CartBloc() {
-    _cartAdditionController.stream.listen((addition) {    
-
-      int currentCount = _cart.items.length;
-
-      _itemCount.add(currentCount);
-
-      _cart.items.add(addition);
-
-      _items.add(_cart.items);
-
-      amount += addition.amount;
-
-      _totalAmount.add(amount);
-    });
+    _cartAdditionController.stream.listen(_cartItemAdditionHandler);
   }
 
   Sink<CartItem> get cartAddition => _cartAdditionController.sink;
@@ -54,20 +35,54 @@ class CartBloc {
 
   Stream<double> get totalAmount => _totalAmount;
 
+  void _cartItemAdditionHandler(CartItem addition) {
+    ///add items to the cart
+    _cart.items.add(addition);
 
-  Future<bool> placeOrder() async {
+    ///update items stream
+    _items.add(_cart.items);
 
-    http.Response response = await API.postOrder(_cart);
+    ///total amount
+    amount += addition.amount;
 
-    print(response.body);
-   
+    ///update total amount stream
+    _totalAmount.add(amount);
+
+    //update total count
+    count = _cart.items.length;
+
+    //update total count stream
+    _itemCount.add(count);
+  }
+
+  ///
+  ///Post order request
+  ///
+  Future<bool> placeOrder(
+      String paymentMode, UserAddress shippingAddress) async {
+    _cart.shippingAddress = shippingAddress;
+
+    _cart.paymentMode = paymentMode;
+
+    await API.postOrder(_cart).then((response) {
+      if (response.statusCode != 200) {
+        return false;
+      }
+    });
+
     return true;
   }
 
-  void disponse(){
-    _cartAdditionController.close();
+  void clearCart() {
+    _cart.items.clear();
+    _items.add(_cart.items);
+    count = _cart.items.length;
+    _itemCount.add(count);
+    amount = 0.0;
+    _totalAmount.add(amount);
   }
 
+  void disponse() {
+    _cartAdditionController.close();
+  }
 }
-
-

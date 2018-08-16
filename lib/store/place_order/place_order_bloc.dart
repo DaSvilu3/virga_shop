@@ -33,6 +33,9 @@ class PlaceOrderBloc {
     _addressChangeController.stream.listen(addressChangeHandler);
   }
 
+  UserAddress getSelectedAddress() => _selectedAddress;
+  
+
   void initAddresses() {
     API.getCurrentUserAddresses().then((response) {
       if (response.statusCode == 200) {

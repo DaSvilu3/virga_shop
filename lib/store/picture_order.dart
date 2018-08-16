@@ -8,6 +8,7 @@ import 'package:rxdart/subjects.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:virga_shop/store/dialogs/picture_picker.dart';
+import 'package:virga_shop/store/place_order.dart';
 
 class PictureOrderPage extends StatefulWidget {
   PictureOrderPage();
@@ -42,42 +43,21 @@ class PictureOrderBody extends StatefulWidget {
 
 class _PictureOrderBodyState extends State<PictureOrderBody> {
   final imageFileStream = new BehaviorSubject<File>(seedValue: null);
+  File _imageFile;
 
-  _showDeliveryOptionsDialog() async {
-    return await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return new SimpleDialog(
-            title: new Text("Delivery Options"),
-            children: <Widget>[
-              SimpleDialogOption(                
-                child: new Row(                  
-                  children: <Widget>[
-                    Icon(FontAwesomeIcons.home),
-                    Container(padding: new EdgeInsets.all(10.0),child: new Text("Home Delivery")),
-                  ],
-                ),
-                onPressed: (){},
-              ),
-              SimpleDialogOption(
-                   child: new Row(
-                  children: <Widget>[
-                    Icon(FontAwesomeIcons.buildingO),
-                    Container(padding: new EdgeInsets.all(10.0),child: new Text("Pick up from Mart")),
-                  ],
-                ),
-                onPressed: (){},
-              )
-            ],
-          );
-        });
+  @override
+  void initState(){
+    super.initState();
+     PicturePicker().dialog(context).then((_image) {
+       _imageFile = _image;
+      imageFileStream.add(_image);
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
-    PicturePicker().dialog(context).then((_image) {
-      imageFileStream.add(_image);
-    });
+   
     return new Column(
       children: <Widget>[
         new Row(
@@ -88,10 +68,10 @@ class _PictureOrderBodyState extends State<PictureOrderBody> {
                 icon: Icon(Icons.camera_alt),
                 label: new Text("Take a Picture"),
                 onPressed: () async {
-                  File _image =
+                  _imageFile =
                       await ImagePicker.pickImage(source: ImageSource.camera);
-                  if (_image != null) {
-                    imageFileStream.add(_image);
+                  if (_imageFile != null) {
+                    imageFileStream.add(_imageFile);
                   }
                 },
               ),
@@ -101,10 +81,10 @@ class _PictureOrderBodyState extends State<PictureOrderBody> {
                 icon: Icon(Icons.photo_library),
                 label: new Text("Choose from gallery"),
                 onPressed: () async {
-                  File _image =
+                  _imageFile =
                       await ImagePicker.pickImage(source: ImageSource.gallery);
-                  if (_image != null) {
-                    imageFileStream.add(_image);
+                  if (_imageFile != null) {
+                    imageFileStream.add(_imageFile);
                   }
                 },
               ),
@@ -131,29 +111,25 @@ class _PictureOrderBodyState extends State<PictureOrderBody> {
           height: 56.0,
           child: new RaisedButton.icon(
             elevation: 30.0,
-            color: Colors.grey,
+            color: Colors.red,
             icon: Icon(Icons.done),
             label: new Text(
               "Place Order",
-              style: TextStyle(color: Colors.pink),
+              style: TextStyle(color: Colors.white),
             ),
             onPressed: () {
-              // print("Started upload");
-              // var url = Uri.parse(Global.Api.pictureOrderUrl);
-              // http.MultipartRequest request = new http.MultipartRequest("POST", url);
-              // imageFileStream.listen((onData){
-              //   print("Reached stream for $url");
-              //   request.files.add(new http.MultipartFile.fromBytes("image", onData.readAsBytesSync(),filename: onData.path));
-              //   request.send().then((response){
-              //     if(response.statusCode == 200){
 
-              //     }
-              //   });
-              // });
+              if(_imageFile == null){
+                Scaffold.of(context).showSnackBar(new SnackBar(
+                  content: new Text("No image is selected to place order."),
+                ));
+              }
+              else{
+                Navigator.of(context).push(new MaterialPageRoute( builder: (context)=> PlaceOrderScreen(imageOrderFile: _imageFile,)));
+              }
+              
 
-              _showDeliveryOptionsDialog();
-
-              //request.files.add()
+              
             },
           ),
         )

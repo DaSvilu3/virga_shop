@@ -1,11 +1,18 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:virga_shop/models/user_address.dart';
+import 'package:virga_shop/network/api.dart';
 import 'package:virga_shop/store/add_address.dart';
+import 'package:virga_shop/store/cart/cart_provider.dart';
 import 'package:virga_shop/store/place_order/place_order_bloc.dart';
 import 'package:virga_shop/store/place_order/place_order_provider.dart';
+import 'dart:io';
+import 'package:virga_shop/globals.dart' as Globals;
 
 class PlaceOrderScreen extends StatefulWidget {
+  final File imageOrderFile;
+
+  PlaceOrderScreen({this.imageOrderFile});
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -22,13 +29,19 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
         appBar: new AppBar(
           title: new Text("Place Order"),
         ),
-        body: PlaceOrderBody(),
+        body: PlaceOrderBody(
+          imageOrderFile: widget.imageOrderFile,
+        ),
       ),
     );
   }
 }
 
 class PlaceOrderBody extends StatefulWidget {
+  final File imageOrderFile;
+
+  PlaceOrderBody({this.imageOrderFile});
+
   @override
   State<StatefulWidget> createState() {
     return _PlaceOrderBodyState();
@@ -36,7 +49,7 @@ class PlaceOrderBody extends StatefulWidget {
 }
 
 class _PlaceOrderBodyState extends State<PlaceOrderBody> {
-  List<String> _checkedPaymentMethod = ["cod"];
+  List<String> _checkedPaymentMethod = [Globals.PaymentModes.cashOnDelivery];
 
   _navigateToAddAddressScreen() async {
     await Navigator
@@ -92,7 +105,8 @@ class _PlaceOrderBodyState extends State<PlaceOrderBody> {
                                               Text(address.addressLine1),
                                               Text(address.city),
                                               Text(address.pincode),
-                                              Text("Phone: ${address.phoneNumber ?? ""} \nLandmark: ${address.landmark ?? "None"}"),
+                                              Text(
+                                                  "Phone: ${address.phoneNumber ?? ""} \nLandmark: ${address.landmark ?? "None"}"),
                                             ],
                                           ),
                                         ),
@@ -190,24 +204,26 @@ class _PlaceOrderBodyState extends State<PlaceOrderBody> {
         ),
         CheckboxListTile(
           title: new Text("Cash-on-Delivery"),
-          value: _checkedPaymentMethod.contains("cod"),
+          value: _checkedPaymentMethod
+              .contains(Globals.PaymentModes.cashOnDelivery),
           onChanged: (checked) {
             if (checked) {
               setState(() {
                 _checkedPaymentMethod.clear();
-                _checkedPaymentMethod.add("cod");
+                _checkedPaymentMethod.add(Globals.PaymentModes.cashOnDelivery);
               });
             }
           },
         ),
         CheckboxListTile(
           title: new Text("Pick-up from Mart"),
-          value: _checkedPaymentMethod.contains("pm"),
+          value:
+              _checkedPaymentMethod.contains(Globals.PaymentModes.pickBySelf),
           onChanged: (checked) {
             if (checked) {
               setState(() {
                 _checkedPaymentMethod.clear();
-                _checkedPaymentMethod.add("pm");
+                _checkedPaymentMethod.add(Globals.PaymentModes.pickBySelf);
               });
             }
           },
@@ -237,7 +253,7 @@ class _PlaceOrderBodyState extends State<PlaceOrderBody> {
         Container(
           padding: new EdgeInsets.fromLTRB(.0, .0, .0, .0),
           width: MediaQuery.of(context).size.width,
-          child: new RaisedButton(            
+          child: new RaisedButton(
             elevation: 40.0,
             color: Colors.grey.shade300,
             padding: new EdgeInsets.all(15.0),
@@ -245,7 +261,35 @@ class _PlaceOrderBodyState extends State<PlaceOrderBody> {
               "Place Order",
               style: TextStyle(color: Colors.blue),
             ),
-            onPressed: () {},
+            onPressed: () async {
+              UserAddress selectedAddress =
+                  PlaceOrderProvider.of(context).getSelectedAddress();
+
+              if (widget.imageOrderFile != null) {
+                print("Place picture order");
+                Scaffold.of(context).showSnackBar(new SnackBar(
+                      content: new Text("Placing order..."),
+                    ));
+
+                API.postPictureOrder(widget.imageOrderFile,
+                    _checkedPaymentMethod.first, selectedAddress)
+                    .then((response){
+                     
+                    });
+              } else {
+                await CartProvider
+                    .of(context)
+                    .placeOrder(_checkedPaymentMethod.first, selectedAddress)
+                    .then((success){
+                      if(success){
+                        Scaffold.of(context).showSnackBar(new SnackBar(
+                          content: Text("Successfully placed order."),
+                        ));
+                        CartProvider.of(context).clearCart();
+                      }
+                    });
+              }
+            },
           ),
         )
       ],
