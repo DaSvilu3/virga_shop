@@ -1,11 +1,16 @@
 import 'dart:async';
 import 'package:rxdart/rxdart.dart';
 import 'package:virga_shop/models/user_address.dart';
-import 'package:http/http.dart' as http;
 import 'package:virga_shop/network/api.dart';
 import 'dart:convert';
+import 'package:virga_shop/globals.dart';
 
 class PlaceOrderBloc {
+
+  BehaviorSubject<Status> _status = new BehaviorSubject(seedValue: Status.loading);
+
+  Stream get status => _status.stream;
+
   //list in which addresses are stored
   List<UserAddress> _addresses = new List();
 
@@ -28,17 +33,26 @@ class PlaceOrderBloc {
   //getter for [_addressChangeController]
   Sink<UserAddress> get addressChange => _addressChangeController.sink;
 
+  //get selected address
+  UserAddress getSelectedAddress() => _selectedAddress;
+
   PlaceOrderBloc() {
     initAddresses();
     _addressChangeController.stream.listen(addressChangeHandler);
-  }
+  } 
 
-  UserAddress getSelectedAddress() => _selectedAddress;
+  void setStatus(Status status){
+    _status.add(status);
+  }
   
 
   void initAddresses() {
     API.getCurrentUserAddresses().then((response) {
       if (response.statusCode == 200) {
+
+        ///if status was successful, hide loading, and show screen
+        _status.add(Status.ready);
+
         try {
           //try to get list of user address
           List<dynamic> rawAddresses = jsonDecode(response.body)["addresses"];
@@ -61,7 +75,9 @@ class PlaceOrderBloc {
         } catch (exception) {
           print(exception);
         }
-      } else {}
+      } else {
+
+      }
     });
   }
 
@@ -70,7 +86,13 @@ class PlaceOrderBloc {
     selectedAddress.add(_selectedAddress);
   }
 
+
+  ///
+  /// When disposing off the data
+  /// close all the connections to the stream
+  /// 
   void dispose() {
+    _status.close();
     _addressChangeController.close();
     selectedAddress.close();
     addresses.close();

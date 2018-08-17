@@ -2,6 +2,14 @@ class App{
   static const String TITLE = "MGM Mart";
 }
 
+enum Status{
+  loading,
+  ready,
+  error,
+  retry,
+  wait,
+}
+
 class QuantityTypes{
   
   static const String looseQuantity = 'loose_quantity';
@@ -14,6 +22,8 @@ class QuantityTypes{
 
 class Api{
   static const String URL = "http://10.0.2.2/VirgaMongo/public";
+  static const String productImageAssetUrl = URL + '/product/images';
+  static const String pictureOrderAssetUrl = URL + '/picture_order/images';
   static const String loginUrl = URL+'/api/login_check';
   static const String homePageUrl = URL+'/api/home';
   static const String searchUrl = URL+'/api/search';

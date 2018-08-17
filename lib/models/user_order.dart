@@ -35,8 +35,8 @@ class UserOrder{
     disc = json["disc"];
     imageUrl = json["image_url"] ?? null;
     //orderItems =  json["order_items"]?.map((f)=>OrderItem.fromJson(f))?.toList();
-    List<dynamic> c= json["order_items"];
-    print(c);
+    List<dynamic> c= json["order_items"] ?? null;
+    orderItems = c?.map((f)=>OrderItem.fromJson(f))?.toList();
   }
   
   Map<String,dynamic> toJson(){

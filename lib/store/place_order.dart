@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:virga_shop/globals.dart';
 import 'package:virga_shop/models/user_address.dart';
 import 'package:virga_shop/network/api.dart';
 import 'package:virga_shop/store/add_address.dart';
@@ -234,65 +235,99 @@ class _PlaceOrderBodyState extends State<PlaceOrderBody> {
 
   @override
   Widget build(BuildContext context) {
-    return new Column(
-      children: <Widget>[
-        Expanded(
-            child: ListView(
-          children: <Widget>[
-            Container(
-              padding: new EdgeInsets.all(20.0),
-              child: new Text(
-                "Select shipping address:",
-                style: TextStyle(fontSize: 16.0),
-              ),
-            ),
-            _addressesSelection(),
-            _paymentModeSelection()
-          ],
-        )),
-        Container(
-          padding: new EdgeInsets.fromLTRB(.0, .0, .0, .0),
-          width: MediaQuery.of(context).size.width,
-          child: new RaisedButton(
-            elevation: 40.0,
-            color: Colors.grey.shade300,
-            padding: new EdgeInsets.all(15.0),
-            child: Text(
-              "Place Order",
-              style: TextStyle(color: Colors.blue),
-            ),
-            onPressed: () async {
-              UserAddress selectedAddress =
-                  PlaceOrderProvider.of(context).getSelectedAddress();
+    PlaceOrderBloc bloc = PlaceOrderProvider.of(context);
 
-              if (widget.imageOrderFile != null) {
-                print("Place picture order");
-                Scaffold.of(context).showSnackBar(new SnackBar(
-                      content: new Text("Placing order..."),
-                    ));
+    return new StreamBuilder<Status>(
+        stream: bloc.status,
+        builder: (context, AsyncSnapshot<Status> status) {
+          if (status.hasData && status.data == Status.ready) {
+            return new Column(
+              children: <Widget>[
+                Expanded(
+                    child: ListView(
+                  children: <Widget>[
+                    Container(
+                      padding: new EdgeInsets.all(20.0),
+                      child: new Text(
+                        "Select shipping address:",
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                    ),
+                    _addressesSelection(),
+                    _paymentModeSelection()
+                  ],
+                )),
+                Container(
+                  padding: new EdgeInsets.fromLTRB(.0, .0, .0, .0),
+                  width: MediaQuery.of(context).size.width,
+                  child: new RaisedButton(
+                    elevation: 40.0,
+                    color: Colors.grey.shade300,
+                    padding: new EdgeInsets.all(15.0),
+                    child: Text(
+                      "Place Order",
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                    onPressed: () async {
+                      //get selected address
+                      UserAddress selectedAddress = bloc.getSelectedAddress();
 
-                API.postPictureOrder(widget.imageOrderFile,
-                    _checkedPaymentMethod.first, selectedAddress)
-                    .then((response){
-                     
-                    });
-              } else {
-                await CartProvider
-                    .of(context)
-                    .placeOrder(_checkedPaymentMethod.first, selectedAddress)
-                    .then((success){
-                      if(success){
+                      //set status to loading
+                      bloc.setStatus(Status.loading);
+
+                      //if it is not of type of picture order
+                      if (widget.imageOrderFile != null) {
+                        //show a snack bar telling we are placing order
                         Scaffold.of(context).showSnackBar(new SnackBar(
-                          content: Text("Successfully placed order."),
-                        ));
-                        CartProvider.of(context).clearCart();
+                              content: new Text("Posting picture order..."),
+                            ));
+                        API
+                            .postPictureOrder(widget.imageOrderFile,
+                                _checkedPaymentMethod.first, selectedAddress)
+                            .then((response) {
+                          if (response) {
+                            Navigator.of(context).pop(context);
+                          } else {
+                            bloc.setStatus(Status.ready);
+                          }
+                        });
+                      } else {
+                        ///if order is of type normal order
+                        ///
+                        Scaffold.of(context).showSnackBar(new SnackBar(
+                              content: new Text("Placing order please wait..."),
+                            ));
+                        await CartProvider
+                            .of(context)
+                            .placeOrder(
+                                _checkedPaymentMethod.first, selectedAddress)
+                            .then((success) {
+                          if (success) {
+                            Scaffold.of(context).showSnackBar(new SnackBar(
+                                  content: Text("Successfully placed order."),
+                                ));
+                            CartProvider.of(context).clearCart();
+                            Navigator.of(context).pop(context);
+                          }
+                          {
+                            bloc.setStatus(Status.ready);
+                          }
+                        });
                       }
-                    });
-              }
-            },
-          ),
-        )
-      ],
-    );
+                    },
+                  ),
+                )
+              ],
+            );
+          } else if (status.hasData && status.data == Status.loading) {
+            return new Container(
+              child: new Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          return new Container(
+            child: new Center(child: CircularProgressIndicator()),
+          );
+        });
   }
 }

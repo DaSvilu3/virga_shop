@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart' as URLauncher;
 import 'package:virga_shop/network/api.dart';
 import 'package:virga_shop/store/category.dart';
 import 'package:virga_shop/store/picture_order.dart';
+import 'package:virga_shop/store/widgets/cart_icon.dart';
 import './widgets/drawer.dart';
 import 'search.dart';
 import 'package:virga_shop/globals.dart';
@@ -25,7 +26,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   String _query;
 
   @override
@@ -61,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
           /// also the search bar
           new SliverAppBar(
             elevation: 10.0,
+            pinned: true,
             actions: <Widget>[
               new IconButton(
                 icon: new Icon(Icons.camera_alt),
@@ -87,17 +88,35 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 },
               ),
-              
 
-              new IconButton(
-                icon: new Icon(FontAwesomeIcons.shoppingBag),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => new Cart()),
-                  );
-                },
-              ),
+              // new IconButton(
+              //   icon: new Icon(FontAwesomeIcons.shoppingBag),
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(builder: (context) => new Cart()),
+              //     );
+              //   },
+              // ),
+              StreamBuilder(
+                  stream: CartProvider.of(context).itemCount,
+                  builder: (context, AsyncSnapshot<int> count) {
+                    if (count.hasData) {
+                      return new CartIcon(
+                          count: count.data,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => new Cart()),
+                            );
+                          });
+                    }
+                    return new CartIcon(
+                      count: 0,
+                      onPressed: null,
+                    );
+                  })
             ],
 
             //
@@ -110,12 +129,12 @@ class _HomeScreenState extends State<HomeScreen> {
             /// //
             bottom: new PreferredSize(
               child: new Container(
-                child: new TextField(                  
+                child: new TextField(
                   decoration: new InputDecoration(
                     hintText: "Search...",
                     suffixIcon: new IconButton(
                       icon: new Icon(FontAwesomeIcons.search),
-                      onPressed: () {                       
+                      onPressed: () {
                         openSearch(_query ?? '');
                       },
                     ),
@@ -155,7 +174,6 @@ class _HomeScreenState extends State<HomeScreen> {
             new FutureBuilder<http.Response>(
               future: loadHome(),
               builder: (context, snapshot) {
-               
                 if (snapshot.connectionState == ConnectionState.done &&
                     snapshot.hasData &&
                     snapshot.data.headers["content-type"] ==
@@ -194,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ///    Pictures will always be in motion,
                     ///    When user touches any of them
                     ///    He will be redirected to that particular.
-                    /// 
+                    ///
 
                     new SizedBox(
                       height: MediaQuery.of(context).size.height * 0.40,
@@ -267,8 +285,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ],
                                         ),
                                       ),
-                                      onTap: (){
-                                        Navigator.push(context, MaterialPageRoute( builder : (context) => new CategoryPage("5b4c8a80e05f062414001f80")));
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    new CategoryPage(
+                                                        "5b4c8a80e05f062414001f80")));
                                       },
                                     ),
                                     new SizedBox.expand(

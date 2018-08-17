@@ -15,7 +15,8 @@ class ProductCategory extends StatefulWidget {
   final Color color;
   final List<dynamic> products;
 
-  ProductCategory(this._categoryName, this._categoryID, {this.color, this.products});
+  ProductCategory(this._categoryName, this._categoryID,
+      {this.color, this.products});
 
   @override
   State<StatefulWidget> createState() => new _ProductCategory();
@@ -53,7 +54,9 @@ class _ProductCategory extends State<ProductCategory> {
                           height: MediaQuery.of(context).size.width / 5,
                         )),
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=> new CategoryPage(widget._categoryID)));
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) =>
+                              new CategoryPage(widget._categoryID)));
                     },
                   );
                 }
@@ -119,7 +122,7 @@ class _ProductCategory extends State<ProductCategory> {
                   maxScale: 2.0,
                   child: new CachedNetworkImage(imageUrl: product["image_url"]),
                 ),
-                height: MediaQuery.of(context).size.height * 0.30,
+                height: MediaQuery.of(context).size.height * 0.20,
                 width: MediaQuery.of(context).size.width * 0.9,
               ),
               new Container(
@@ -133,33 +136,46 @@ class _ProductCategory extends State<ProductCategory> {
                     /// either cancel or see more about product
                     ///
                     //////
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          new OutlineButton(
+                            borderSide: BorderSide(color: Colors.red),
+                            child: new Text(
+                              "Cancel",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                          new OutlineButton(
+                            borderSide: BorderSide(color: Colors.green),
+                            child: new Text(
+                              "More",
+                              style: TextStyle(color: Colors.green),
+                            ),
+                            onPressed: () {
+                              //first close the dialog
+                              Navigator.pop(context);
 
-                    new ButtonBar(
-                      alignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        new RaisedButton(
-                          child: new Text("Cancel"),
-                          onPressed: () {},
-                        ),
-                        new RaisedButton(
-                          child: new Text("More"),
-                          onPressed: () {
-                            //first close the dialog
-                            Navigator.pop(context);
-
-                            //then show the product page
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Product(
-                                          productID: product["id"],
-                                        )));
-                          },
-                        )
-                      ],
+                              //then show the product page
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Product(
+                                            productID: product["id"],
+                                          )));
+                            },
+                          ),
+                        ],
+                      ),
                     ),
 
-                    QuantityPrompt(product),
+                    QuantityPrompt(product, this.context),
                   ],
                 ),
                 width: width,
@@ -199,8 +215,9 @@ typedef void AddToCart(
 ///
 class QuantityPrompt extends StatefulWidget {
   final Map<String, dynamic> product;
+  final BuildContext context;
 
-  QuantityPrompt(this.product);
+  QuantityPrompt(this.product, this.context);
 
   @override
   State<StatefulWidget> createState() {
@@ -242,6 +259,12 @@ class _QuantityPromptState extends State<QuantityPrompt> {
     item.amount = amount;
 
     cartBloc.cartAddition.add(item);
+
+    //close dialog after adding to cart
+    Navigator.pop(context);
+    Scaffold
+        .of(widget.context)
+        .showSnackBar(new SnackBar(content: new Text("Added to cart")));
   }
 
   @override
@@ -402,19 +425,28 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
               style: TextStyle(fontSize: 16.0, color: Colors.red),
             ),
           ),
-          new RaisedButton(
-            child: new Text("Add to cart"),
-            onPressed: () {
-              if (_form.currentState.validate()) {
-                //if quantity and choice is valid,
-                //enable to add to cart.
-                widget.addToCart(
-                    customQuantityName: this.checked[0],
-                    customQuantityUnit:
-                        double.tryParse(_quantityTEC.text.trim()),
-                    amount: _totalAmount);
-              }
-            },
+          Container(
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+            child: new MaterialButton(
+              color: Colors.indigoAccent,
+              elevation: 10.0,
+              child: new Text(
+                "Add to cart",
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                if (_form.currentState.validate()) {
+                  //if quantity and choice is valid,
+                  //enable to add to cart.
+                  widget.addToCart(
+                      customQuantityName: this.checked[0],
+                      customQuantityUnit:
+                          double.tryParse(_quantityTEC.text.trim()),
+                      amount: _totalAmount);
+                }
+              },
+            ),
           )
         ],
       ),
@@ -506,9 +538,11 @@ class _LooseQuantityState extends State<LooseQuantity> {
 
     return new Column(
       children: <Widget>[
-        new Text(
-          "Quantity",
-          style: new TextStyle(fontWeight: FontWeight.w700),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: new Text(
+            "Quantity",
+          ),
         ),
         new SizedBox(
           width: MediaQuery.of(context).size.width * 0.5,
@@ -527,8 +561,9 @@ class _LooseQuantityState extends State<LooseQuantity> {
                     keyboardType:
                         TextInputType.numberWithOptions(decimal: true),
                     textAlign: TextAlign.center,
-                    decoration:
-                        InputDecoration(suffixText: "Kg", hintText: "Quantity"),
+                    decoration: InputDecoration(
+                        suffixText: widget.product["quantity"]["unit_name"],
+                        hintText: "Quantity"),
                     validator: (value) {
                       double parsedValue = double.tryParse(value);
 
@@ -573,21 +608,33 @@ class _LooseQuantityState extends State<LooseQuantity> {
                 ///
                 /// This is add to cart button,
                 ///
-                new RaisedButton(
-                  child: const Text("Add to Cart"),
-                  onPressed: () {
-                    if (_formKey.currentState.validate()) {
-                      //iff loose quantity is set and is valid
-                      //then add to cart
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding:
+                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                  child: new MaterialButton(
+                    color: Colors.indigoAccent,
+                    elevation: 10.0,
+                    child: const Text(
+                      "Add to Cart",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    onPressed: () {
+                      if (_formKey.currentState.validate()) {
+                        //iff loose quantity is set and is valid
+                        //then add to cart
 
-                      widget.addToCart(
-                          looseQuantity:
-                              double.tryParse(_quantityValueTEC.text.trim()),
-                          amount: _totalAmount,
-                          looseQuantityUnitName: widget.product["quantity"]
-                              ["unit_name"]);
-                    }
-                  },
+                        widget.addToCart(
+                            looseQuantity:
+                                double.tryParse(_quantityValueTEC.text.trim()),
+                            amount: _totalAmount,
+                            looseQuantityUnitName: widget.product["quantity"]
+                                ["unit_name"]);
+                      }
+                    },
+                  ),
                 )
               ],
             ),
@@ -695,7 +742,7 @@ class _PieceQuantityState extends State<PieceQuantity> {
                     child: new TextFormField(
                       controller: this._quantityTEC,
                       keyboardType: TextInputType.numberWithOptions(
-                          decimal: false, signed: false),                          
+                          decimal: false, signed: false),
                       textAlign: TextAlign.center,
                       decoration: InputDecoration(hintText: "Quantity"),
                       validator: (value) {
@@ -743,15 +790,24 @@ class _PieceQuantityState extends State<PieceQuantity> {
             ],
           ),
         ),
-        new RaisedButton(
-          child: Text("Add to Cart"),
-          onPressed: () {
-            if (_form.currentState.validate()) {
-              widget.addToCart(
-                  pieceQuantity: double.tryParse(_quantityTEC.text.trim()),
-                  amount: _totalAmount);
-            }
-          },
+        Container(
+          width: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+          child: new MaterialButton(
+            color: Colors.indigoAccent,
+            elevation: 10.0,
+            child: Text(
+              "Add to Cart",
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: () {
+              if (_form.currentState.validate()) {
+                widget.addToCart(
+                    pieceQuantity: double.tryParse(_quantityTEC.text.trim()),
+                    amount: _totalAmount);
+              }
+            },
+          ),
         )
       ],
     ));

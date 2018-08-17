@@ -219,7 +219,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         _emailController.text.trim(),
                                         _mobileController.text.trim(),
                                         _passwordController.text.trim())
-                                    .then((response) {
+                                    .then((response) {                                     
                                   if (response.statusCode == 500) {
                                     dynamic body = jsonDecode(response.body);
                                     _scaffoldKey.currentState
