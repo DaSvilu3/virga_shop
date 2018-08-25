@@ -9,7 +9,7 @@ class UserAccountScreen extends StatelessWidget {
           "Account",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.grey.shade200,
       ),
       body: UserAccountBody(),
     );

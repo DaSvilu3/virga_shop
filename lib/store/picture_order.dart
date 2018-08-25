@@ -1,12 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:virga_shop/globals.dart' as Global;
 import 'package:rxdart/subjects.dart';
-import 'package:http/http.dart' as http;
-
 import 'package:virga_shop/store/dialogs/picture_picker.dart';
 import 'package:virga_shop/store/place_order.dart';
 
@@ -46,18 +42,16 @@ class _PictureOrderBodyState extends State<PictureOrderBody> {
   File _imageFile;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-     PicturePicker().dialog(context).then((_image) {
-       _imageFile = _image;
+    PicturePicker().dialog(context).then((_image) {
+      _imageFile = _image;
       imageFileStream.add(_image);
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-   
     return new Column(
       children: <Widget>[
         new Row(
@@ -118,18 +112,16 @@ class _PictureOrderBodyState extends State<PictureOrderBody> {
               style: TextStyle(color: Colors.white),
             ),
             onPressed: () {
-
-              if(_imageFile == null){
+              if (_imageFile == null) {
                 Scaffold.of(context).showSnackBar(new SnackBar(
-                  content: new Text("No image is selected to place order."),
-                ));
+                      content: new Text("No image is selected to place order."),
+                    ));
+              } else {
+                Navigator.of(context).push(new MaterialPageRoute(
+                    builder: (context) => PlaceOrderScreen(
+                          imageOrderFile: _imageFile,
+                        )));
               }
-              else{
-                Navigator.of(context).push(new MaterialPageRoute( builder: (context)=> PlaceOrderScreen(imageOrderFile: _imageFile,)));
-              }
-              
-
-              
             },
           ),
         )

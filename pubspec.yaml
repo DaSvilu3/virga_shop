@@ -10,22 +10,15 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.0
   http: ^0.11.3+16
-  font_awesome_flutter: 6.0.0  
-  
+  font_awesome_flutter: ^8.0.1
   carousel_pro: "^0.0.13"
-
   url_launcher: "^3.0.2"
-
   image_picker: "^0.4.5"
-
   flutter_svg: "^0.5.1"
-  
   flutter_advanced_networkimage: any
-
   shared_preferences: any
-
-  cached_network_image: "^0.4.1"
-
+  cached_network_image: 
+    git: https://github.com/Cretezy/flutter_cached_network_image.git
   rxdart: ^0.18.1
 
   json_annotation: ^1.1.0

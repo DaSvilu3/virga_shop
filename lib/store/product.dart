@@ -50,9 +50,6 @@ class _ProductScreenState extends State<ProductScreen> {
   ///minimum quantity user has to choose
   double minimum;
 
-  //same old counter to keep it fresh
-  int _count = 0;
-
   CartBloc cartBloc;
 
   ///calulated total amount for the product size
@@ -128,10 +125,10 @@ class _ProductScreenState extends State<ProductScreen> {
                       this._quantityTEC.text.trim().replaceAll(" ", ''));
             }
           }
-        }else{          
+        } else {
           totalAmount = quantities[0]["prices"][0]["price"] *
-                  double.tryParse(
-                      this._quantityTEC.text.trim().replaceAll(" ", ''));
+              double
+                  .tryParse(this._quantityTEC.text.trim().replaceAll(" ", ''));
           checked.add(quantities[0]["name"]);
         }
 
@@ -238,10 +235,10 @@ class _ProductScreenState extends State<ProductScreen> {
         new Column(
           children: quantity
               .map((item) => new CheckboxListTile(
-                    value:checked.contains(item["name"]),
+                    value: checked.contains(item["name"]),
                     title: new Text(item["name"]),
                     onChanged: (ticked) {
-                      if (ticked) {                        
+                      if (ticked) {
                         setState(() {
                           checked.clear();
                           checked.add(item["name"]);
