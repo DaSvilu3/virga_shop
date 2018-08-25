@@ -13,7 +13,7 @@ class SearchResult {
       : id = result["id"],
         name = result["name"],
         description = result["description"],
-        imageUrl = result["image_url"],
+        imageUrl = result["imageUrl"],
         category = result["categories"],
         quantity = result["quantity"];
 
@@ -23,7 +23,7 @@ class SearchResult {
       "id" : id,
       "name" : name,
       "description" : description,
-      "image_url" : imageUrl,
+      "imageUrl" : imageUrl,
       "categories" : category,
       "quantity" : quantity
     };

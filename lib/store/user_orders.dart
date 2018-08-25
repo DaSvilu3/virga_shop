@@ -43,7 +43,7 @@ class _UserOrdersBodyState extends State<UserOrdersBody> {
                     width: MediaQuery.of(context).size.width * 0.2,
                     imageUrl: Globals.Api.productImageAssetUrl +
                         '/' +
-                        item.product["image_url"],
+                        item.product["imageUrl"],
                     errorWidget: Center(
                       child: new CircularProgressIndicator(),
                     ),

@@ -66,7 +66,7 @@ class _ProductCategory extends State<ProductCategory> {
                         margin: new EdgeInsets.all(10.0),
                         child: new SizedBox(
                           child: new CachedNetworkImage(
-                            imageUrl: widget.products[index - 1]["image_url"],
+                            imageUrl: widget.products[index - 1]["imageUrl"],
                             fit: BoxFit.fill,
                           ),
                           width: MediaQuery.of(context).size.width / 5,
@@ -120,7 +120,7 @@ class _ProductCategory extends State<ProductCategory> {
                 child: new ZoomableWidget(
                   minScale: 0.5,
                   maxScale: 2.0,
-                  child: new CachedNetworkImage(imageUrl: product["image_url"]),
+                  child: new CachedNetworkImage(imageUrl: product["imageUrl"]),
                 ),
                 height: MediaQuery.of(context).size.height * 0.20,
                 width: MediaQuery.of(context).size.width * 0.9,
@@ -343,7 +343,7 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
     _quantityTEC.text = widget.minimum.toInt().toString();
     _quantityTEC.addListener(_updatedQuantity);
     _totalAmount = double.tryParse(
-        widget.product["quantity"]["quantities"][0]["prices"][0]["price"].toString());
+        widget.product["quantity"]["quantities"][0]["values"][0]["price"].toString());
   }
 
   void _updatedQuantity() {
@@ -358,9 +358,9 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
 
       double amount;      
 
-      for (int i = 0; i < quantities[index]["prices"].length; i++) {
-        if (quantity >= quantities[index]["prices"][i]["quantity"]) {
-          amount = quantities[index]["prices"][i]["price"] *
+      for (int i = 0; i < quantities[index]["values"].length; i++) {
+        if (quantity >= quantities[index]["values"][i]["quantity"]) {
+          amount = quantities[index]["values"][i]["price"] *
               double
                   .tryParse(this._quantityTEC.text.trim().replaceAll(" ", ''));
         }
@@ -582,7 +582,7 @@ class _LooseQuantityState extends State<LooseQuantity> {
                         TextInputType.numberWithOptions(decimal: true),
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
-                        suffixText: widget.product["quantity"]["unit_name"],
+                        suffixText: widget.product["quantity"]["unitName"],
                         hintText: "Quantity"),
                     validator: (value) {
                       double parsedValue = double.tryParse(value);
@@ -651,7 +651,7 @@ class _LooseQuantityState extends State<LooseQuantity> {
                                 double.tryParse(_quantityValueTEC.text.trim()),
                             amount: _totalAmount,
                             looseQuantityUnitName: widget.product["quantity"]
-                                ["unit_name"]);
+                                ["unitName"]);
                       }
                     },
                   ),

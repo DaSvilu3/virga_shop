@@ -16,7 +16,7 @@ class Product{
     id = json["id"],
     name = json["name"],
     description = json["description"],
-    imageUrl = json["image_url"],
+    imageUrl = json["imageUrl"],
     categories = (json["categories"] as List).map((category)=>ProductCategory.fromJson(category)).toList(),
     quantity = json["quantity"],
     seller = json["seller"],
@@ -36,4 +36,12 @@ class Product{
       "addedTime" :addedTime
     };
   }
+}
+
+class ProductQuantity{
+
+  double maximum;
+  double minimum;
+  String type;
+
 }

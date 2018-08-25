@@ -83,7 +83,7 @@ class _CategoryPageBodyState extends State<CategoryPageBody> {
               width: MediaQuery.of(context).size.height * 0.15,
               child: CachedNetworkImage(
                 fit: BoxFit.contain,
-                imageUrl: product["image_url"],
+                imageUrl: product["imageUrl"],
               ),
             ),
             title: new Text(

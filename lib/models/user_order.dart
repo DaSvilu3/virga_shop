@@ -33,7 +33,7 @@ class UserOrder{
     status = json["status"];
     paymentMode = json["payment_mode"];
     disc = json["disc"];
-    imageUrl = json["image_url"] ?? null;
+    imageUrl = json["imageUrl"] ?? null;
     //orderItems =  json["order_items"]?.map((f)=>OrderItem.fromJson(f))?.toList();
     List<dynamic> c= json["order_items"] ?? null;
     orderItems = c?.map((f)=>OrderItem.fromJson(f))?.toList();

@@ -270,7 +270,7 @@ class _ProductScreenState extends State<ProductScreen> {
         return pieceQuantityForm();
       } else if (quantityType == QuantityTypes.looseQuantity) {
         this._quantityTEC.text = double.tryParse(minimum.toString()).toString();
-        productQuantityUnit = product["quantity"]["unit_name"];
+        productQuantityUnit = product["quantity"]["unitName"];
         return looseQuantityForm();
       } else if (quantityType == QuantityTypes.customQuantity) {
         this._quantityTEC.text =
@@ -438,7 +438,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
             title = response["name"];
 
-            imageUrl = response["image_url"];
+            imageUrl = response["imageUrl"];
             description = response["description"];
             quantityType = response["quantity"]["type"];
             minimum =
@@ -483,7 +483,7 @@ class _ProductScreenState extends State<ProductScreen> {
       if (quantityType == QuantityTypes.looseQuantity) {
         CartItem cartItem = new CartItem(product, quantityType,
             looseQuantity: double.tryParse(_quantityTEC.text.toString().trim()),
-            looseQuantityUnitName: product["quantity"]["unit_name"],
+            looseQuantityUnitName: product["quantity"]["unitName"],
             amount: totalAmount);
         cartBloc.cartAddition.add(cartItem);
       }

@@ -148,7 +148,7 @@ class _CartState extends State<Cart> {
           new SizedBox(
             width: MediaQuery.of(context).size.width * 0.3,
             child: new CachedNetworkImage(
-              imageUrl: item.product["image_url"],
+              imageUrl: item.product["imageUrl"],
             ),
           ),
           new Column(
@@ -195,7 +195,7 @@ class _CartState extends State<Cart> {
           new SizedBox(
             width: MediaQuery.of(context).size.width * 0.3,
             child: new CachedNetworkImage(
-              imageUrl: item.product["image_url"],
+              imageUrl: item.product["imageUrl"],
             ),
           ),
           new Column(
