@@ -1,5 +1,5 @@
 class App{
-  static const String TITLE = "MGM Mart";
+  static const String TITLE = "MGM MART";
 }
 
 enum Status{

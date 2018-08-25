@@ -10,19 +10,18 @@ import 'package:virga_shop/store/cart/cart_provider.dart';
 import '../globals.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class Product extends StatefulWidget {
+class ProductScreen extends StatefulWidget {
   final String productID;
 
-  Product({this.productID});
+  ProductScreen({this.productID});
 
   @override
   State<StatefulWidget> createState() {
-    return _ProductState();
+    return _ProductScreenState();
   }
 }
 
-class _ProductState extends State<Product> {
-
+class _ProductScreenState extends State<ProductScreen> {
   final _totalAmountStream = new BehaviorSubject<double>(seedValue: null);
 
   final _quantityTEC = new TextEditingController();
@@ -59,7 +58,6 @@ class _ProductState extends State<Product> {
   ///calulated total amount for the product size
   double totalAmount = 0.0;
 
-
   /// Load the product info from the api
   /// returns a [http.Response] object containing
   /// [json] data
@@ -74,37 +72,73 @@ class _ProductState extends State<Product> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _quantityTEC.dispose();
     _totalAmountStream.close();
     super.dispose();
   }
 
-  void handleQuantityChange(){
+  void handleQuantityChange() {
+    if (quantityType.isNotEmpty) {
+      double quantity = double.tryParse(_quantityTEC.text.trim()) ?? 0.0;
 
-    if(quantityType.isNotEmpty){
+      if (this.quantityType == QuantityTypes.pieceQuantity) {
+        totalAmount = double.tryParse(_quantityTEC.text.trim()) *
+            double
+                .tryParse(product["quantity"]["values"][0]["price"].toString());
 
-      if(this.quantityType == QuantityTypes.pieceQuantity){
-        totalAmount = double.tryParse(_quantityTEC.text.trim()) * double.tryParse(product["quantity"]["price_per_unit"].toString());
+        List<dynamic> values = product["quantity"]["values"];
+
+        for (int index = 0; index < values.length; index++) {
+          if (values[index]["quantity"] <= quantity) {
+            totalAmount = quantity * values[index]["price"];
+          }
+        }
+
         _totalAmountStream.add(totalAmount);
       }
 
-      if(this.quantityType == QuantityTypes.looseQuantity){
-        totalAmount = double.tryParse(_quantityTEC.text.trim()) * double.tryParse(product["quantity"]["values"][0]["price"].toString());
+      if (this.quantityType == QuantityTypes.looseQuantity) {
+        totalAmount = double.tryParse(_quantityTEC.text.trim()) *
+            double
+                .tryParse(product["quantity"]["values"][0]["price"].toString());
+
+        List<dynamic> values = product["quantity"]["values"];
+
+        for (int index = 0; index < values.length; index++) {
+          if (values[index]["quantity"] <= quantity) {
+            totalAmount = quantity * values[index]["price"];
+          }
+        }
+
         _totalAmountStream.add(totalAmount);
       }
 
-      if(this.quantityType == QuantityTypes.customQuantity){    
+      if (this.quantityType == QuantityTypes.customQuantity) {
         List<dynamic> quantities = product["quantity"]["quantities"];
-        totalAmount =  double.tryParse(_quantityTEC.text.trim()) *  (quantities.firstWhere((item)=>item["name"] == checked[0]))["price"].toDouble();        
+
+        if (checked.length != 0) {
+          int index =
+              quantities.indexWhere((item) => item["name"] == checked[0]);
+
+          for (int i = 0; i < quantities[index].length; i++) {
+            if (quantity >= quantities[index]["prices"][i]["quantity"]) {
+              totalAmount = quantities[index]["prices"][i]["price"] *
+                  double.tryParse(
+                      this._quantityTEC.text.trim().replaceAll(" ", ''));
+            }
+          }
+        }else{          
+          totalAmount = quantities[0]["prices"][0]["price"] *
+                  double.tryParse(
+                      this._quantityTEC.text.trim().replaceAll(" ", ''));
+          checked.add(quantities[0]["name"]);
+        }
+
         _totalAmountStream.add(totalAmount);
       }
-
     }
-  
-    
   }
-
 
   //
   //
@@ -158,7 +192,6 @@ class _ProductState extends State<Product> {
                 _quantityTEC.text =
                     ((int.tryParse(_quantityTEC.text.trim()) ?? 0) + 1)
                         .toString();
-                
               },
             ),
           ),
@@ -200,18 +233,15 @@ class _ProductState extends State<Product> {
 
   Widget customQuantityForm() {
     List<dynamic> quantity = product["quantity"]["quantities"];
-
     return new Column(
       children: <Widget>[
         new Column(
           children: quantity
               .map((item) => new CheckboxListTile(
-                    value: _count++ == 0
-                        ? !checked.contains(item["name"])
-                        : checked.contains(item["name"]),
+                    value:checked.contains(item["name"]),
                     title: new Text(item["name"]),
                     onChanged: (ticked) {
-                      if (ticked) {
+                      if (ticked) {                        
                         setState(() {
                           checked.clear();
                           checked.add(item["name"]);
@@ -219,7 +249,7 @@ class _ProductState extends State<Product> {
                       } else {
                         setState(() {
                           if (checked.length > 1) checked.remove(item["name"]);
-                        });                        
+                        });
                       }
                       handleQuantityChange();
                     },
@@ -235,9 +265,8 @@ class _ProductState extends State<Product> {
   Widget quantityForm() {
     if (quantityType.isNotEmpty && quantityType != null) {
       if (quantityType == QuantityTypes.pieceQuantity) {
-       this._quantityTEC.text =
+        this._quantityTEC.text =
             double.tryParse(minimum.toString()).toInt().toString();
-        
         return pieceQuantityForm();
       } else if (quantityType == QuantityTypes.looseQuantity) {
         this._quantityTEC.text = double.tryParse(minimum.toString()).toString();
@@ -307,7 +336,6 @@ class _ProductState extends State<Product> {
             //
             //container to hold the quanitity buttons
             //
-            //
             quantityForm(),
 
             ////////////
@@ -324,10 +352,9 @@ class _ProductState extends State<Product> {
                   ///
                   new StreamBuilder<double>(
                     stream: _totalAmountStream,
-                    builder: (context,snapshot){
-
-                      if(snapshot.hasData){
-                         return new Text("₹ : "+snapshot.data.toString());
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return new Text("₹ : " + snapshot.data.toString());
                       }
 
                       return new Text("₹ : 0.0");
@@ -438,31 +465,26 @@ class _ProductState extends State<Product> {
   void _clickAddToCart() {
     if (_form.currentState.validate()) {
       if (quantityType == QuantityTypes.customQuantity) {
-        CartItem cartItem = new CartItem(
-          product,
-          quantityType,
-          customQuantityName: checked[0],
-          customQuantity:
-              double.tryParse(_quantityTEC.text.toString().trim()),
-              amount: totalAmount
-        );
+        CartItem cartItem = new CartItem(product, quantityType,
+            customQuantityName: checked[0],
+            customQuantity:
+                double.tryParse(_quantityTEC.text.toString().trim()),
+            amount: totalAmount);
 
         cartBloc.cartAddition.add(cartItem);
       }
       if (quantityType == QuantityTypes.pieceQuantity) {
         CartItem cartItem = new CartItem(product, quantityType,
-            pieceQuantity:
-                double.tryParse(_quantityTEC.text.toString().trim()),
-                amount: totalAmount);
+            pieceQuantity: double.tryParse(_quantityTEC.text.toString().trim()),
+            amount: totalAmount);
 
         cartBloc.cartAddition.add(cartItem);
       }
       if (quantityType == QuantityTypes.looseQuantity) {
         CartItem cartItem = new CartItem(product, quantityType,
-            looseQuantity:
-                double.tryParse(_quantityTEC.text.toString().trim()),
+            looseQuantity: double.tryParse(_quantityTEC.text.toString().trim()),
             looseQuantityUnitName: product["quantity"]["unit_name"],
-                amount: totalAmount);                        
+            amount: totalAmount);
         cartBloc.cartAddition.add(cartItem);
       }
     }

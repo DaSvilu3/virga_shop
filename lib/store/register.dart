@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:virga_shop/network/api.dart';
@@ -84,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 prefixText: "+91",
                                 prefixIcon: Icon(FontAwesomeIcons.mobileAlt)),
                             validator: (value) {
-                              if (value.length < 10 || value.length > 10) {
+                              if (value.trim().length < 10 || value.trim().length > 10) {
                                 return "Invalid mobile number";
                               }
                             },
@@ -227,6 +229,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       content: new Text(body["message"]),
                                       duration: new Duration(seconds: 5),
                                     ));
+                                  }else if(response.statusCode==200){
+                                    _scaffoldKey.currentState
+                                        .showSnackBar(new SnackBar(
+                                      content: new Text("Registered Successfully"),
+                                      duration: new Duration(seconds: 5),
+                                    ));
+                                    Future.delayed(Duration(seconds: 2),()async{
+                                      Navigator.pop(context,true);
+                                    });
                                   }
                                 });
                               }

@@ -54,7 +54,7 @@ class _SearchResultsListState extends State<SearchResultsList> {
                       ),
                     ),
                     onTap: (){
-                      Navigator.push(context, MaterialPageRoute( builder: (context) => new Product(productID: snapshot.data[index].id,)));
+                      Navigator.push(context, MaterialPageRoute( builder: (context) => new ProductScreen(productID: snapshot.data[index].id,)));
                     },
                   );
                 },

@@ -118,7 +118,6 @@ class _UserOrdersBodyState extends State<UserOrdersBody> {
 
           ///show order items or picture
           userOrderItems(order),
-
         ]),
       ),
     );
@@ -167,6 +166,29 @@ class _UserOrdersBodyState extends State<UserOrdersBody> {
         if (snapshot.hasData) {
           if (snapshot.data == UserOrdersBloc.done) {
             return userOrdersList();
+          }
+
+          ///there has been an error then show it
+          ///with retry button
+          if (snapshot.data == UserOrdersBloc.error) {
+            return MaterialButton(
+              onPressed: (){
+                bloc.load();
+              },
+              child: new Container(
+                child: new Center(
+                  child: new Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(FontAwesomeIcons.redo),
+                      new Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: new Text("Retry"))
+                    ],
+                  ),
+                ),
+              ),
+            );
           }
 
           ///if the status is set to loading

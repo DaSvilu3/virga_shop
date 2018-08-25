@@ -31,15 +31,19 @@ class _SideDrawerState extends State<SideDrawer> {
           ///
           new DrawerHeader(
             child: new Center(
-              child: const Text(
-                App.TITLE,
-                style: TextStyle(
-                  fontSize: 35.0,
-                ),
-              ),
+              child: Image.asset(
+                'graphics/logo_trans.png'
+              )
             ),
             decoration:
-                new BoxDecoration(color: Theme.of(context).primaryColor),
+                new BoxDecoration(color: Colors.white,border: new Border(
+                   bottom: new BorderSide(
+                     color: Colors.grey.shade400,
+                     width: 1.0
+                   )
+                ),
+                )
+              
           ),
 
           /////////////////////////

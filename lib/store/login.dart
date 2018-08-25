@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
         key: _scaffoldKey,
         body: new SafeArea(
             child: new Container(
-          color: Colors.blueAccent,
+          color: Colors.white,
           child: new Center(
             child: new Container(
               padding: EdgeInsets.all(10.0),
@@ -97,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: <Widget>[
                         new SizedBox(
                           width: MediaQuery.of(context).size.width * 0.3,
-                          child: new Image.asset('graphics/logo.jpg'),
+                          child: new Image.asset('graphics/logo_trans.png'),
                         ),
                       ],
                     ),
@@ -117,37 +117,41 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: new Row(
                               children: <Widget>[
                                 new Flexible(
-                                  child: new TextFormField(
-                                    keyboardType: TextInputType.phone,
-                                    controller: _usernameTextEditingController,
-                                    validator: (value) {
-                                      if (value.trim().isEmpty) {
-                                        return "Please enter your mobile number.";
-                                      } else if (value.trim().length < 10 ||
-                                          value.trim().length > 10) {
-                                        return "Invalid number of digits, check again.";
-                                      }
-                                    },
-                                    decoration: new InputDecoration(
-                                      prefixText: "+91",
-                                      prefixIcon: new Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          new Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 10.0),
-                                            child: new Icon(Icons.phone),
-                                          ),
-                                        ],
+                                  child: Material(
+                                    elevation: 4.0,
+                                    child: new TextFormField(
+                                      keyboardType: TextInputType.phone,
+                                      controller:
+                                          _usernameTextEditingController,
+                                      validator: (value) {
+                                        if (value.trim().isEmpty) {
+                                          return "Please enter your mobile number.";
+                                        } else if (value.trim().length < 10 ||
+                                            value.trim().length > 10) {
+                                          return "Invalid number of digits, check again.";
+                                        }
+                                      },
+                                      decoration: new InputDecoration(
+                                        prefixText: "+91",
+                                        border: InputBorder.none,
+                                        prefixIcon: new Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            new Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 10.0),
+                                              child: new Icon(Icons.phone),
+                                            ),
+                                          ],
+                                        ),
+                                        hintText: "Mobile Number",
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        contentPadding: EdgeInsets.fromLTRB(
+                                            0.0, 15.0, .0, 10.0),
                                       ),
-                                      hintText: "Mobile Number",
-                                      border: InputBorder.none,
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      contentPadding: EdgeInsets.fromLTRB(
-                                          0.0, 15.0, .0, 10.0),
                                     ),
                                   ),
                                 )
@@ -161,26 +165,29 @@ class _LoginScreenState extends State<LoginScreen> {
                         new Container(
                           color: Colors.lightBlue,
                           margin: new EdgeInsets.symmetric(vertical: 2.0),
-                          child: new TextFormField(
-                            obscureText: true,
-                            controller: _passwordTextEditingController,
-                            decoration: new InputDecoration(
-                              hintText: "Password",
-                              prefixIcon: Icon(FontAwesomeIcons.key),
-                              border: InputBorder.none,
-                              filled: true,
-                              fillColor: Colors.white,
-                            ),
+                          child: Material(
+                            elevation: 3.0,
+                            child: new TextFormField(
+                              obscureText: true,
+                              controller: _passwordTextEditingController,
+                              decoration: new InputDecoration(
+                                border: InputBorder.none,
+                                hintText: "Password",
+                                prefixIcon: Icon(FontAwesomeIcons.key),
+                                filled: true,
+                                fillColor: Colors.white,
+                              ),
 
-                            ////validation for password
-                            validator: (value) {
-                              if (value.trim().isEmpty) {
-                                return "Password cannot be empty";
-                              }
-                              if (value.trim().length < 5) {
-                                return "Invalid password, check again.";
-                              }
-                            },
+                              ////validation for password
+                              validator: (value) {
+                                if (value.trim().isEmpty) {
+                                  return "Password cannot be empty";
+                                }
+                                if (value.trim().length < 5) {
+                                  return "Invalid password, check again.";
+                                }
+                              },
+                            ),
                           ),
                         ),
 
@@ -238,12 +245,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: new RaisedButton(
                         color: Colors.amberAccent,
                         child: new Text("Register"),
-                        onPressed: () {
+                        onPressed: () async {
                           //go to register screen
-                          Navigator.push(
+                          bool registered = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => new RegisterScreen()));
+                          if(registered){
+                            _scaffoldKey.currentState.showSnackBar(new SnackBar(content:Text("Your were registered successfully. You can login now."),
+                            duration: Duration(seconds:10),));
+                          }
                         },
                       ),
                     ),

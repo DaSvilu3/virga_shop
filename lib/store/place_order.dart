@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:virga_shop/globals.dart';
 import 'package:virga_shop/models/user_address.dart';
 import 'package:virga_shop/network/api.dart';
 import 'package:virga_shop/store/add_address.dart';
 import 'package:virga_shop/store/cart/cart_provider.dart';
+import 'package:virga_shop/store/home.dart';
 import 'package:virga_shop/store/place_order/place_order_bloc.dart';
 import 'package:virga_shop/store/place_order/place_order_provider.dart';
 import 'dart:io';
@@ -51,6 +54,18 @@ class PlaceOrderBody extends StatefulWidget {
 
 class _PlaceOrderBodyState extends State<PlaceOrderBody> {
   List<String> _checkedPaymentMethod = [Globals.PaymentModes.cashOnDelivery];
+
+  void _showSnackBar(String text) {
+    Scaffold.of(context).showSnackBar(new SnackBar(content: new Text(text)));
+  }
+
+  _popAndNavigateToHomeScreen() {
+    return Future.delayed(new Duration(seconds: 2), (() async {
+      Navigator.of(context).pushAndRemoveUntil(
+          new MaterialPageRoute(builder: (context) => new HomeScreen()),
+          (route) => false);
+    }));
+  }
 
   _navigateToAddAddressScreen() async {
     await Navigator
@@ -278,16 +293,17 @@ class _PlaceOrderBodyState extends State<PlaceOrderBody> {
                       //if it is not of type of picture order
                       if (widget.imageOrderFile != null) {
                         //show a snack bar telling we are placing order
-                        Scaffold.of(context).showSnackBar(new SnackBar(
-                              content: new Text("Posting picture order..."),
-                            ));
+                        _showSnackBar("Placing your order, please wait...");
                         API
                             .postPictureOrder(widget.imageOrderFile,
                                 _checkedPaymentMethod.first, selectedAddress)
                             .then((response) {
                           if (response) {
-                            Navigator.of(context).pop(context);
+                            Scaffold.of(context).hideCurrentSnackBar();
+                            _showSnackBar("Placed order successfully.");
+                            _popAndNavigateToHomeScreen();
                           } else {
+                            _showSnackBar("Couldn't place order, try again.");
                             bloc.setStatus(Status.ready);
                           }
                         });
@@ -295,7 +311,8 @@ class _PlaceOrderBodyState extends State<PlaceOrderBody> {
                         ///if order is of type normal order
                         ///
                         Scaffold.of(context).showSnackBar(new SnackBar(
-                              content: new Text("Placing order please wait..."),
+                              content:
+                                  new Text("Placing your order please wait..."),
                             ));
                         await CartProvider
                             .of(context)
@@ -303,13 +320,12 @@ class _PlaceOrderBodyState extends State<PlaceOrderBody> {
                                 _checkedPaymentMethod.first, selectedAddress)
                             .then((success) {
                           if (success) {
-                            Scaffold.of(context).showSnackBar(new SnackBar(
-                                  content: Text("Successfully placed order."),
-                                ));
+                            _showSnackBar("Successfully placed your order.");
                             CartProvider.of(context).clearCart();
-                            Navigator.of(context).pop(context);
+                            _popAndNavigateToHomeScreen();
                           }
                           {
+                            _showSnackBar("Failed to place order, please try again.");
                             bloc.setStatus(Status.ready);
                           }
                         });

@@ -98,7 +98,7 @@ class _CategoryPageBodyState extends State<CategoryPageBody> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => new Product(productID: product["id"])));
+                builder: (context) => new ProductScreen(productID: product["id"])));
       },
     );
   }

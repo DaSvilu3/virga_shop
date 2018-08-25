@@ -166,7 +166,7 @@ class _ProductCategory extends State<ProductCategory> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Product(
+                                      builder: (context) => ProductScreen(
                                             productID: product["id"],
                                           )));
                             },
@@ -343,18 +343,28 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
     _quantityTEC.text = widget.minimum.toInt().toString();
     _quantityTEC.addListener(_updatedQuantity);
     _totalAmount = double.tryParse(
-        widget.product["quantity"]["quantities"][0]["price"].toString());
+        widget.product["quantity"]["quantities"][0]["prices"][0]["price"].toString());
   }
 
   void _updatedQuantity() {
     if (_quantityTEC.text.isNotEmpty &&
         double.parse(_quantityTEC.text.trim().replaceAll(" ", '')) != null) {
+      double quantity =
+          double.parse(_quantityTEC.text.trim().replaceAll(" ", ''));
+
       List<dynamic> quantities = widget.product["quantity"]["quantities"];
 
       int index = (quantities.indexWhere((b) => b["name"] == checked[0]));
 
-      double amount = quantities[index]["price"] *
-          double.tryParse(this._quantityTEC.text.trim().replaceAll(" ", ''));
+      double amount;      
+
+      for (int i = 0; i < quantities[index]["prices"].length; i++) {
+        if (quantity >= quantities[index]["prices"][i]["quantity"]) {
+          amount = quantities[index]["prices"][i]["price"] *
+              double
+                  .tryParse(this._quantityTEC.text.trim().replaceAll(" ", ''));
+        }
+      }
 
       setState(() {
         _totalAmount = amount;
@@ -373,10 +383,6 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               new Text(quantity["name"]),
-              new Text(
-                "₹ " + quantity["price"].toString(),
-                style: new TextStyle(color: Colors.green),
-              )
             ]),
         value: checked.contains(quantity["name"]),
         onChanged: (b) {
@@ -504,8 +510,22 @@ class _LooseQuantityState extends State<LooseQuantity> {
   double _totalAmount = 0.0;
 
   void onQuantityChanged() {
-    double pricePerUnit = double
-        .parse(widget.product["quantity"]["values"][0]["price"].toString());
+    if (_quantityValueTEC.text.isEmpty) return;
+
+    double quantity = double.tryParse(_quantityValueTEC.text.trim());
+
+    List<dynamic> values = widget.product["quantity"]["values"];
+
+    double pricePerUnit = double.parse(values[0]["price"].toString());
+
+    for (int index = 0; index < values.length; index++) {
+      if (values[index] != null && values[index]["quantity"] <= quantity) {
+        pricePerUnit = double.parse(values[index]["price"].toString());
+      } else {
+        break;
+      }
+    }
+
     if (this._quantityValueTEC.text.isNotEmpty) {
       setState(() {
         this._totalAmount = (pricePerUnit *
@@ -662,8 +682,8 @@ class PieceQuantity extends StatefulWidget {
             double.tryParse((product["quantity"]["maximum"]).toString()) ?? 0,
         minimum =
             double.tryParse((product["quantity"]["minimum"]).toString()) ?? 199,
-        pricePerUnit =
-            double.tryParse(product["quantity"]["price_per_unit"].toString());
+        pricePerUnit = double
+            .tryParse(product["quantity"]["values"][0]["price"].toString());
 
   @override
   State<StatefulWidget> createState() {
@@ -677,10 +697,15 @@ class _PieceQuantityState extends State<PieceQuantity> {
   double _totalAmount = 0.0;
   GlobalKey<FormState> _form = new GlobalKey();
 
+  List<dynamic> _quantityValues = new List();
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    _quantityValues = widget.product["quantity"]["values"];
+
     _quantityTEC.text = widget.minimum.toInt().toString();
     _quantityTEC.addListener(this._updatedQuantity);
     this._updatedQuantity();
@@ -697,10 +722,17 @@ class _PieceQuantityState extends State<PieceQuantity> {
 
     if (_quantityTEC.text.isNotEmpty) {
       if (double.tryParse(_quantityTEC.text.trim()) != null) {
-        dynamic quantity =
-            double.tryParse(_quantityTEC.text.trim()) * widget.pricePerUnit;
+        double quantity = double.tryParse(_quantityTEC.text.trim());
+        double amount;
+
+        for (int index = 0; index < _quantityValues.length; index++) {
+          if (_quantityValues[index]["quantity"] <= quantity) {
+            amount = quantity * _quantityValues[index]["price"];
+          }
+        }
+
         setState(() {
-          this._totalAmount = quantity;
+          this._totalAmount = amount;
         });
       }
     }

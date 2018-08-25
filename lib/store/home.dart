@@ -121,7 +121,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
             //
             // title of the app show in the appbar at the top
-            title: new Text(App.TITLE),
+            title: new Row(
+              children: <Widget>[
+                Container(
+                  padding: new EdgeInsets.all(3.0),
+                    child: new Image.asset(
+                  'graphics/logo_thump.png',                  
+                )),
+                new Text(App.TITLE)
+              ],
+            ),
 
             /////
             /// this is where the search input is put

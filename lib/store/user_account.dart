@@ -29,14 +29,14 @@ class UserAccountBodyState extends State<UserAccountBody> {
       padding: const EdgeInsets.all(10.0),
       child: DecoratedBox(
         decoration: BoxDecoration(
-            border: Border.all(color: Colors.purpleAccent.shade400)),
+            border: Border.all(color: Colors.black38)),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(
             text,
             textAlign: TextAlign.center,
             style:
-                TextStyle(fontSize: 16.0, color: Colors.purpleAccent.shade400),
+                TextStyle(fontSize: 16.0, color: Colors.black),
           ),
         ),
       ),
@@ -62,8 +62,8 @@ class UserAccountBodyState extends State<UserAccountBody> {
       children: <Widget>[
         Container(
             margin: EdgeInsets.symmetric(vertical: 20.0, horizontal: 40.0),
-            child: new Material(
-              elevation: 5.0,
+            child: new Material(          
+              elevation: 2.0,
               shape: BeveledRectangleBorder(),
               child: new Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
