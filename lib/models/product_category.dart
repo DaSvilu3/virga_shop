@@ -1,26 +1,25 @@
+import 'package:virga_shop/models/product.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'product_category.g.dart';
+
+@JsonSerializable()
+
+
 class ProductCategory{  
   
   String id;
   int categoryID;
   String name;
-  List<dynamic> products;
+  ProductCategory parent;
+  List<ProductCategory> children;
+  List<Product> products;
 
   ProductCategory({this.id,this.categoryID,this.name,this.products});
 
-  ProductCategory.fromJson(Map<String,dynamic> category)
-    :id  = category["id"],
-    categoryID = category["category_id"],
-    name = category["name"],
-    products = category["products"];
+  factory ProductCategory.fromJson(Map<String,dynamic> json) => _$ProductCategoryFromJson(json);
 
-  Map<String,dynamic> toJson(){
-    return {
-      "id" : id,
-      "category_id" : categoryID,
-      "name" : name,
-      "products" :products
-    };
-  }
+  Map<String,dynamic> toJson() => _$ProductCategoryToJson(this);
     
   
 }

@@ -1,3 +1,11 @@
+import 'package:json_annotation/json_annotation.dart';
+
+
+part 'user_address.g.dart';
+
+@JsonSerializable()
+
+
 class UserAddress{
   
   ///Fullname of the user
@@ -11,25 +19,7 @@ class UserAddress{
 
   UserAddress({this.fullname,this.addressLine1,this.addressLine2,this.phoneNumber,this.city,this.landmark,this.pincode});
 
-  UserAddress.fromJson(Map<String,dynamic> json):
-    fullname = json["fullname"],
-    addressLine1 = json["address_line1"],
-    addressLine2 = json["address_line2"] ?? null,
-    phoneNumber = json["phone_number"],
-    city = json["city"],
-    landmark = json["landmark"] ?? null,
-    pincode = json["pincode"];
-  
-  Map<String,dynamic> toJson() {
-    return {
-      "fullname" : fullname,
-      "addressLine1" : addressLine1,
-      "addressLine2" :addressLine2,
-      "phoneNumber" : phoneNumber,
-      "city" : city,
-      "landmark" : landmark,
-      "pincode" : pincode      
-    };
-    }
+  factory UserAddress.fromJson(Map<String,dynamic> json)=> _$UserAddressFromJson(json);
 
+  Map<String,dynamic> toJson() => _$UserAddressToJson(this);
 }

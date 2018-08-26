@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart' as URLauncher;
+import 'package:virga_shop/models/product.dart';
 import 'package:virga_shop/network/api.dart';
 import 'package:virga_shop/store/category.dart';
 import 'package:virga_shop/store/picture_order.dart';
@@ -202,11 +203,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     List<dynamic> categories = new List();
                     categories = data["category"];
                     int oe = 0;
-                    categories.forEach((c) {
+                    categories.forEach((category) {
+                     
                       productCategories.add(new ProductCategory(
-                        c["name"],
-                        c["id"],
-                        products: c["products"],
+                        category["name"],
+                        category["id"],
+                        products: category["products"],
                         color: oe % 2 != 0 ? Colors.white : Colors.black,
                       ));
 
