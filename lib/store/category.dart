@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:virga_shop/models/product.dart';
 import 'package:virga_shop/models/product_category.dart';
 import 'package:virga_shop/network/api.dart';
 import 'dart:convert';
@@ -35,7 +36,7 @@ class _CategoryPageState extends State<CategoryPage> {
             try {
               ProductCategory category =
                   ProductCategory.fromJson(jsonDecode(snapshot.data.body));
-              _categoryName = category.name;
+              _categoryName = category.name;             
 
               return new CategoryPageBody(
                 products: category.products,
@@ -58,7 +59,7 @@ class _CategoryPageState extends State<CategoryPage> {
 }
 
 class CategoryPageBody extends StatefulWidget {
-  final List<dynamic> products;
+  final List<Product> products;
 
   CategoryPageBody({this.products});
 
@@ -70,7 +71,7 @@ class CategoryPageBody extends StatefulWidget {
 }
 
 class _CategoryPageBodyState extends State<CategoryPageBody> {
-  Widget productTile(dynamic product) {
+  Widget productTile(Product product) {
     return GestureDetector(
       child: Card(
         margin: new EdgeInsets.all(10.0),
@@ -83,14 +84,14 @@ class _CategoryPageBodyState extends State<CategoryPageBody> {
               width: MediaQuery.of(context).size.height * 0.15,
               child: CachedNetworkImage(
                 fit: BoxFit.contain,
-                imageUrl: product["imageUrl"],
+                imageUrl: product.imageUrl,
               ),
             ),
             title: new Text(
-              product["name"],
+              product.name,
               style: Theme.of(context).textTheme.title,
             ),
-            subtitle: Text(product["description"]),
+            subtitle: Text(product.description),
           ),
         ),
       ),
@@ -98,7 +99,7 @@ class _CategoryPageBodyState extends State<CategoryPageBody> {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => new ProductScreen(productID: product["id"])));
+                builder: (context) => new ProductScreen(productID: product.id)));
       },
     );
   }

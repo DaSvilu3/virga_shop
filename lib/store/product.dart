@@ -126,7 +126,7 @@ class _ProductScreenState extends State<ProductScreen> {
             }
           }
         } else {
-          totalAmount = quantities[0]["prices"][0]["price"] *
+          totalAmount = quantities[0]["values"][0]["price"] *
               double
                   .tryParse(this._quantityTEC.text.trim().replaceAll(" ", ''));
           checked.add(quantities[0]["name"]);

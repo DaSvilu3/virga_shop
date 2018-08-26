@@ -100,10 +100,9 @@ class API {
 
     if (response.statusCode == 401) {
       dynamic body = jsonDecode(response.body);
-      if (body["message"] == tokenExpired) {
-        
+      if (body["message"] == tokenExpired) {        
         print("Token Expired");
-        await reAuth().then((authenticated){
+        return reAuth().then((authenticated){
           if(authenticated){
             return gatewayGet(url);
           }
@@ -119,7 +118,7 @@ class API {
   /// returns [http.Response] contain encoded [Json] object
   ///
   static Future<http.Response> getHome() async {
-    return await gatewayGet(Globals.Api.homePageUrl);
+    return gatewayGet(Globals.Api.homePageUrl);
   }
 
   ///
@@ -127,14 +126,14 @@ class API {
   /// returns [http.Response] contains encoded [Json] object
   ///
   static Future<http.Response> getProduct(String productID) async {
-    return await gatewayGet(Globals.Api.productsUrl + '/' + productID);
+    return gatewayGet(Globals.Api.productsUrl + '/' + productID);
   }
 
   ///
   /// Get Category and its products
   ///
   static Future<http.Response> getCategory(String categoryID) async {
-    return await gatewayGet(Globals.Api.categoryUrl + '/' + categoryID);
+    return gatewayGet(Globals.Api.categoryUrl + '/' + categoryID);
   }
 
   ///
@@ -143,7 +142,7 @@ class API {
   ///
   ///
   static Future<http.Response> getCurrentUserAddresses() async{
-    return await gatewayGet(Globals.Api.currentUserAddressUrl);
+    return gatewayGet(Globals.Api.currentUserAddressUrl);
   }
 
 
@@ -151,7 +150,7 @@ class API {
   /// Get user orders placed , including both normal and picture orders
   ///
   static Future<http.Response> getUserOrders() async{
-    return await gatewayGet(Globals.Api.currentUserOrdersUrl);
+    return gatewayGet(Globals.Api.currentUserOrdersUrl);
   } 
 
 
