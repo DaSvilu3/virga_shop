@@ -9,20 +9,20 @@ import '../../globals.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:virga_shop/models/cart_item.dart';
 
-class ProductCategory extends StatefulWidget {
+class ProductCategorySlide extends StatefulWidget {
   final String _categoryName;
   final String _categoryID;
   final Color color;
   final List<dynamic> products;
 
-  ProductCategory(this._categoryName, this._categoryID,
+  ProductCategorySlide(this._categoryName, this._categoryID,
       {this.color, this.products});
 
   @override
-  State<StatefulWidget> createState() => new _ProductCategory();
+  State<StatefulWidget> createState() => new _ProductCategorySlideState();
 }
 
-class _ProductCategory extends State<ProductCategory> {
+class _ProductCategorySlideState extends State<ProductCategorySlide> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build

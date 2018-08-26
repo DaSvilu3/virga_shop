@@ -5,19 +5,18 @@ import 'package:http/http.dart' as http;
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart' as URLauncher;
-import 'package:virga_shop/models/product.dart';
 import 'package:virga_shop/network/api.dart';
+import 'package:virga_shop/store/cart.dart';
 import 'package:virga_shop/store/category.dart';
+import 'package:virga_shop/store/login.dart';
 import 'package:virga_shop/store/picture_order.dart';
+import 'package:virga_shop/store/search.dart';
 import 'package:virga_shop/store/widgets/cart_icon.dart';
-import './widgets/drawer.dart';
-import 'search.dart';
 import 'package:virga_shop/globals.dart';
-import 'cart.dart';
-import 'widgets/product_category.dart';
-import 'login.dart';
 import 'package:virga_shop/store/cart/cart_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:virga_shop/store/widgets/drawer.dart';
+import 'package:virga_shop/store/widgets/product_category_slide.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -190,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         'application/json' &&
                     snapshot.data.statusCode != 401) {
                   //list of product categories
-                  List<ProductCategory> productCategories = new List();
+                  List<ProductCategorySlide> productCategories = new List();
 
                   //decode response to json object
                   Map<String, dynamic> data = jsonDecode(snapshot.data.body);
@@ -205,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     int oe = 0;
                     categories.forEach((category) {
                      
-                      productCategories.add(new ProductCategory(
+                      productCategories.add(new ProductCategorySlide(
                         category["name"],
                         category["id"],
                         products: category["products"],

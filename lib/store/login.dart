@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:virga_shop/store/home/home.dart';
 import 'register.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:virga_shop/network/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'home.dart';
+
 
 class LoginScreen extends StatefulWidget {
   @override

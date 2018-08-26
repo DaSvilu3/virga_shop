@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:virga_shop/store/home.dart';
+import 'package:virga_shop/store/home/home.dart';
 import 'package:virga_shop/store/login.dart';
 import 'package:virga_shop/store/picture_order.dart';
 import 'package:virga_shop/store/user_account.dart';

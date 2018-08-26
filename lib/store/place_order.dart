@@ -6,7 +6,7 @@ import 'package:virga_shop/models/user_address.dart';
 import 'package:virga_shop/network/api.dart';
 import 'package:virga_shop/store/add_address.dart';
 import 'package:virga_shop/store/cart/cart_provider.dart';
-import 'package:virga_shop/store/home.dart';
+import 'package:virga_shop/store/home/home.dart';
 import 'package:virga_shop/store/place_order/place_order_bloc.dart';
 import 'package:virga_shop/store/place_order/place_order_provider.dart';
 import 'dart:io';
