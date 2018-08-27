@@ -8,8 +8,8 @@ part of 'product_quantity.dart';
 
 ProductQuantity _$ProductQuantityFromJson(Map<String, dynamic> json) {
   return ProductQuantity(
-      minimum: json['minimum'] as int,
-      maximum: json['maximum'] as int,
+      minimum: (json['minimum'] as num)?.toDouble(),
+      maximum: (json['maximum'] as num)?.toDouble(),
       type: json['type'] as String,
       unitName: json['unitName'] as String,
       values: (json['values'] as List)
@@ -17,7 +17,11 @@ ProductQuantity _$ProductQuantityFromJson(Map<String, dynamic> json) {
               ? null
               : ProductQuantityValue.fromJson(e as Map<String, dynamic>))
           ?.toList(),
-      quantities: json['quantities'] as List);
+      quantities: (json['quantities'] as List)
+          ?.map((e) => e == null
+              ? null
+              : CustomQuantityUnit.fromJson(e as Map<String, dynamic>))
+          ?.toList());
 }
 
 Map<String, dynamic> _$ProductQuantityToJson(ProductQuantity instance) =>

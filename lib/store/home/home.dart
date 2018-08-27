@@ -5,9 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart' as URLauncher;
+import 'package:virga_shop/models/product.dart';
 import 'package:virga_shop/network/api.dart';
 import 'package:virga_shop/store/cart.dart';
-import 'package:virga_shop/store/category.dart';
+import 'package:virga_shop/store/category/category.dart';
 import 'package:virga_shop/store/login.dart';
 import 'package:virga_shop/store/picture_order.dart';
 import 'package:virga_shop/store/search.dart';
@@ -207,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       productCategories.add(new ProductCategorySlide(
                         category["name"],
                         category["id"],
-                        products: category["products"],
+                        products: (category["products"] as List).map((product)=>Product.fromJson(product)).toList(),
                         color: oe % 2 != 0 ? Colors.white : Colors.black,
                       ));
 
@@ -225,10 +226,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     ///
 
                     new SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.40,
+                      height: MediaQuery.of(context).size.height * 0.40,                      
                       child: new Carousel(
                         dotBgColor: Colors.black12,
                         autoplay: true,
+                        
                         autoplayDuration: new Duration(seconds: 5),
                         images: bannerUrls
                             .map((f) => new NetworkImage(f["name"]))
@@ -460,6 +462,7 @@ class Store extends StatefulWidget {
     // TODO: implement createState
     return _StoreState();
   }
+
 }
 
 class _StoreState extends State<Store> {
@@ -504,4 +507,9 @@ class _StoreState extends State<Store> {
       ),
     );
   }
+
+  @override
+    void dispose() {      
+      super.dispose();
+    }
 }

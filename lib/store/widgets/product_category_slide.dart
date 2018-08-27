@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_networkimage/zoomable_widget.dart';
+import 'package:virga_shop/models/custom_quantity_unit.dart';
+import 'package:virga_shop/models/product.dart';
+import 'package:virga_shop/models/product_quantity_value.dart';
 import 'package:virga_shop/store/cart/cart_bloc.dart';
 import 'package:virga_shop/store/cart/cart_provider.dart';
-import 'package:virga_shop/store/category.dart';
+import 'package:virga_shop/store/category/category.dart';
 import 'dart:async';
 import '../product.dart';
 import '../../globals.dart';
@@ -13,7 +16,7 @@ class ProductCategorySlide extends StatefulWidget {
   final String _categoryName;
   final String _categoryID;
   final Color color;
-  final List<dynamic> products;
+  final List<Product> products;
 
   ProductCategorySlide(this._categoryName, this._categoryID,
       {this.color, this.products});
@@ -66,7 +69,7 @@ class _ProductCategorySlideState extends State<ProductCategorySlide> {
                         margin: new EdgeInsets.all(10.0),
                         child: new SizedBox(
                           child: new CachedNetworkImage(
-                            imageUrl: widget.products[index - 1]["imageUrl"],
+                            imageUrl: widget.products[index - 1].imageUrl,
                             fit: BoxFit.fill,
                           ),
                           width: MediaQuery.of(context).size.width / 5,
@@ -97,18 +100,18 @@ class _ProductCategorySlideState extends State<ProductCategorySlide> {
   ///
   /// //////////////////////////////////////////
 
-  Future<Null> _productDetails(dynamic product) async {
+  Future<Null> _productDetails(Product product) async {
     await showDialog<int>(
         context: this.context,
         builder: (BuildContext context) {
-          dynamic width = MediaQuery.of(context).size.width / 100.0 * 50;
+          double width = MediaQuery.of(context).size.width / 100.0 * 50;
 
           return new SimpleDialog(
             ///
             ////
             ///   Title of the dialog to be shown
             ////
-            title: new Text(product["name"]),
+            title: new Text(product.name),
 
             //
             // Childerens in the dialog, those image of product, buttons
@@ -120,7 +123,7 @@ class _ProductCategorySlideState extends State<ProductCategorySlide> {
                 child: new ZoomableWidget(
                   minScale: 0.5,
                   maxScale: 2.0,
-                  child: new CachedNetworkImage(imageUrl: product["imageUrl"]),
+                  child: new CachedNetworkImage(imageUrl: product.imageUrl),
                 ),
                 height: MediaQuery.of(context).size.height * 0.20,
                 width: MediaQuery.of(context).size.width * 0.9,
@@ -167,7 +170,7 @@ class _ProductCategorySlideState extends State<ProductCategorySlide> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => ProductScreen(
-                                            productID: product["id"],
+                                            productID: product.id,
                                           )));
                             },
                           ),
@@ -214,7 +217,7 @@ typedef void AddToCart(
 ///
 ///
 class QuantityPrompt extends StatefulWidget {
-  final Map<String, dynamic> product;
+  final Product product;
   final BuildContext context;
 
   QuantityPrompt(this.product, this.context);
@@ -239,7 +242,7 @@ class _QuantityPromptState extends State<QuantityPrompt> {
       double customQuantityUnit,
       double amount}) {
     CartItem item;
-    String quantityType = widget.product["quantity"]["type"];
+    String quantityType = widget.product.quantity.type;
 
     if (quantityType == QuantityTypes.looseQuantity) {
       item = new CartItem(widget.product, quantityType,
@@ -270,7 +273,7 @@ class _QuantityPromptState extends State<QuantityPrompt> {
   @override
   Widget build(BuildContext context) {
     // we use product quantity type to decide which type of quantityPrompt to display
-    dynamic productQuantityType = widget.product["quantity"]["type"];
+    String productQuantityType = widget.product.quantity.type;
 
     //CartBloc to enable addToCart function
     cartBloc = CartProvider.of(context);
@@ -306,15 +309,13 @@ class _QuantityPromptState extends State<QuantityPrompt> {
 ///
 
 class CustomQuantityPrompt extends StatefulWidget {
-  final dynamic product;
+  final Product product;
   final double minimum;
   final double maximum;
   final AddToCart addToCart;
   CustomQuantityPrompt(this.product, this.addToCart)
-      : minimum =
-            double.tryParse(product["quantity"]["minimum"].toString()) ?? 0.0,
-        maximum =
-            double.tryParse(product["quantity"]["maximum"].toString()) ?? 100;
+      : minimum = product.quantity.minimum ?? 1.0,            
+        maximum = product.quantity.maximum ?? 100.0;
 
   @override
   State<StatefulWidget> createState() {
@@ -343,7 +344,7 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
     _quantityTEC.text = widget.minimum.toInt().toString();
     _quantityTEC.addListener(_updatedQuantity);
     _totalAmount = double.tryParse(
-        widget.product["quantity"]["quantities"][0]["values"][0]["price"].toString());
+        widget.product.quantity.quantities[0].values[0].price.toString());
   }
 
   void _updatedQuantity() {
@@ -352,15 +353,15 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
       double quantity =
           double.parse(_quantityTEC.text.trim().replaceAll(" ", ''));
 
-      List<dynamic> quantities = widget.product["quantity"]["quantities"];
+      List<CustomQuantityUnit> quantities = widget.product.quantity.quantities;
 
-      int index = (quantities.indexWhere((b) => b["name"] == checked[0]));
+      int index = (quantities.indexWhere((quantity) => quantity.name == checked[0]));
 
       double amount;      
 
-      for (int i = 0; i < quantities[index]["values"].length; i++) {
-        if (quantity >= quantities[index]["values"][i]["quantity"]) {
-          amount = quantities[index]["values"][i]["price"] *
+      for (int i = 0; i < quantities[index].values.length; i++) {
+        if (quantity >= quantities[index].values[i].quantity) {
+          amount = quantities[index].values[i].price *
               double
                   .tryParse(this._quantityTEC.text.trim().replaceAll(" ", ''));
         }
@@ -372,26 +373,26 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
     }
   }
 
-  Widget _quantityRow(dynamic quantity) {
+  Widget _quantityRow(CustomQuantityUnit quantity) {
     //useful to select the first checkbox
     //very smart
 
-    if (++count == 0) checked.add(quantity["name"]);
+    if (++count == 0) checked.add(quantity.name);
 
     return new CheckboxListTile(
         title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              new Text(quantity["name"]),
+              new Text(quantity.name),
             ]),
-        value: checked.contains(quantity["name"]),
+        value: checked.contains(quantity.name),
         onChanged: (b) {
           setState(() {
             if (b) {
               checked.clear();
-              checked.add(quantity["name"]);
+              checked.add(quantity.name);
             } else {
-              if (checked.length > 1) checked.remove(quantity["name"]);
+              if (checked.length > 1) checked.remove(quantity.name);
             }
           });
 
@@ -461,7 +462,7 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
 
   @override
   Widget build(BuildContext context) {
-    List<dynamic> quantities = widget.product["quantity"]["quantities"];
+    List<CustomQuantityUnit> quantities = widget.product.quantity.quantities;
 
     return Column(
       children: <Widget>[
@@ -488,14 +489,14 @@ class _CustomQuantityPromptState extends State<CustomQuantityPrompt> {
 ///
 
 class LooseQuantity extends StatefulWidget {
-  final dynamic product;
+  final Product product;
   final double minimum;
   final double maximum;
   final AddToCart addToCart;
 
   LooseQuantity(this.product, this.addToCart)
-      : minimum = double.tryParse(product["quantity"]["minimum"].toString()),
-        maximum = double.tryParse(product["quantity"]["maximum"].toString());
+      : minimum = product.quantity.minimum ?? 1.0,
+        maximum = product.quantity.maximum ?? 100.0;
 
   @override
   State<StatefulWidget> createState() {
@@ -514,13 +515,13 @@ class _LooseQuantityState extends State<LooseQuantity> {
 
     double quantity = double.tryParse(_quantityValueTEC.text.trim());
 
-    List<dynamic> values = widget.product["quantity"]["values"];
+    List<ProductQuantityValue> values = widget.product.quantity.values;
 
-    double pricePerUnit = double.parse(values[0]["price"].toString());
+    double pricePerUnit = values[0].price;
 
     for (int index = 0; index < values.length; index++) {
-      if (values[index] != null && values[index]["quantity"] <= quantity) {
-        pricePerUnit = double.parse(values[index]["price"].toString());
+      if (values[index] != null && values[index].price <= quantity) {
+        pricePerUnit = values[index].price;
       } else {
         break;
       }
@@ -553,8 +554,8 @@ class _LooseQuantityState extends State<LooseQuantity> {
 
   @override
   Widget build(BuildContext context) {
-    final minimum = widget.product["quantity"]["minimum"];
-    final maximum = widget.product["quantity"]["maximum"];
+    final minimum = widget.product.quantity.minimum;
+    final maximum = widget.product.quantity.maximum;
 
     return new Column(
       children: <Widget>[
@@ -582,7 +583,7 @@ class _LooseQuantityState extends State<LooseQuantity> {
                         TextInputType.numberWithOptions(decimal: true),
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
-                        suffixText: widget.product["quantity"]["unitName"],
+                        suffixText: widget.product.quantity.unitName,
                         hintText: "Quantity"),
                     validator: (value) {
                       double parsedValue = double.tryParse(value);
@@ -650,8 +651,7 @@ class _LooseQuantityState extends State<LooseQuantity> {
                             looseQuantity:
                                 double.tryParse(_quantityValueTEC.text.trim()),
                             amount: _totalAmount,
-                            looseQuantityUnitName: widget.product["quantity"]
-                                ["unitName"]);
+                            looseQuantityUnitName: widget.product.quantity.unitName);
                       }
                     },
                   ),
@@ -671,19 +671,16 @@ class _LooseQuantityState extends State<LooseQuantity> {
 /////
 ///
 class PieceQuantity extends StatefulWidget {
-  final dynamic product;
+  final Product product;
   final double minimum;
   final double maximum;
   final double pricePerUnit;
   final AddToCart addToCart;
 
   PieceQuantity(this.product, this.addToCart)
-      : maximum =
-            double.tryParse((product["quantity"]["maximum"]).toString()) ?? 0,
-        minimum =
-            double.tryParse((product["quantity"]["minimum"]).toString()) ?? 199,
-        pricePerUnit = double
-            .tryParse(product["quantity"]["values"][0]["price"].toString());
+      : maximum = product.quantity.maximum ?? 0,
+        minimum = product.quantity.minimum ?? 199,
+        pricePerUnit = product.quantity.values[0].price;
 
   @override
   State<StatefulWidget> createState() {
@@ -697,14 +694,14 @@ class _PieceQuantityState extends State<PieceQuantity> {
   double _totalAmount = 0.0;
   GlobalKey<FormState> _form = new GlobalKey();
 
-  List<dynamic> _quantityValues = new List();
+  List<ProductQuantityValue> _quantityValues = new List();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    _quantityValues = widget.product["quantity"]["values"];
+    _quantityValues = widget.product.quantity.values;
 
     _quantityTEC.text = widget.minimum.toInt().toString();
     _quantityTEC.addListener(this._updatedQuantity);
@@ -726,8 +723,8 @@ class _PieceQuantityState extends State<PieceQuantity> {
         double amount;
 
         for (int index = 0; index < _quantityValues.length; index++) {
-          if (_quantityValues[index]["quantity"] <= quantity) {
-            amount = quantity * _quantityValues[index]["price"];
+          if (_quantityValues[index].quantity <= quantity) {
+            amount = quantity * _quantityValues[index].price;
           }
         }
 

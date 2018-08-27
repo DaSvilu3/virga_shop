@@ -7,7 +7,8 @@ part of 'keyword.dart';
 // **************************************************************************
 
 Keyword _$KeywordFromJson(Map<String, dynamic> json) {
-  return Keyword(json['keyword'] as String, weight: json['weight'] as String);
+  return Keyword(json['keyword'] as String,
+      weight: (json['weight'] as num)?.toDouble());
 }
 
 Map<String, dynamic> _$KeywordToJson(Keyword instance) =>

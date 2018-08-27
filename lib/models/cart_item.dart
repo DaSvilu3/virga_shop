@@ -1,7 +1,9 @@
 
+import 'package:virga_shop/models/product.dart';
+
 class CartItem{
   
-  dynamic product;
+  Product product;
 
   String quantityType;
 
@@ -30,7 +32,7 @@ class CartItem{
   Map<String,Object> toJson(){
     
     return {
-      "id" : product["id"],
+      "id" : product.id,
       "quantityType" : quantityType,
       "looseQuantity" : looseQuantity,
       "looseQuantityUnitName" : looseQuantityUnitName,

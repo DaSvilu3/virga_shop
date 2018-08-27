@@ -82,7 +82,7 @@ class CartBloc {
     _totalAmount.add(amount);
   }
 
-  void disponse() {
+  void disponse() {   
     _cartAdditionController.close();
   }
 }

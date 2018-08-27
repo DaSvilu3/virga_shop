@@ -148,7 +148,7 @@ class _CartState extends State<Cart> {
           new SizedBox(
             width: MediaQuery.of(context).size.width * 0.3,
             child: new CachedNetworkImage(
-              imageUrl: item.product["imageUrl"],
+              imageUrl: item.product.imageUrl,
             ),
           ),
           new Column(
@@ -157,7 +157,7 @@ class _CartState extends State<Cart> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: new Text(
-                  item.product["name"],
+                  item.product.name,
                   style: TextStyle(fontSize: 16.0),
                 ),
               ),
@@ -195,7 +195,7 @@ class _CartState extends State<Cart> {
           new SizedBox(
             width: MediaQuery.of(context).size.width * 0.3,
             child: new CachedNetworkImage(
-              imageUrl: item.product["imageUrl"],
+              imageUrl: item.product.imageUrl,
             ),
           ),
           new Column(
@@ -204,7 +204,7 @@ class _CartState extends State<Cart> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: new Text(
-                  item.product["name"],
+                  item.product.name,
                   style: TextStyle(fontSize: 16.0),
                 ),
               ),

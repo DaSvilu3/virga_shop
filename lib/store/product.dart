@@ -4,6 +4,9 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:rxdart/rxdart.dart';
 import 'package:virga_shop/models/cart_item.dart';
+import 'package:virga_shop/models/custom_quantity_unit.dart';
+import 'package:virga_shop/models/product.dart';
+import 'package:virga_shop/models/product_quantity_value.dart';
 import 'package:virga_shop/network/api.dart';
 import 'package:virga_shop/store/cart/cart_bloc.dart';
 import 'package:virga_shop/store/cart/cart_provider.dart';
@@ -42,7 +45,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
   String productQuantityUnit;
 
-  Map<String, dynamic> product;
+  Product product;
 
   ///maximum quantity user can choose
   double maximum;
@@ -81,14 +84,13 @@ class _ProductScreenState extends State<ProductScreen> {
 
       if (this.quantityType == QuantityTypes.pieceQuantity) {
         totalAmount = double.tryParse(_quantityTEC.text.trim()) *
-            double
-                .tryParse(product["quantity"]["values"][0]["price"].toString());
+            product.quantity.values[0].price;
 
-        List<dynamic> values = product["quantity"]["values"];
+        List<ProductQuantityValue> values = product.quantity.values;
 
         for (int index = 0; index < values.length; index++) {
-          if (values[index]["quantity"] <= quantity) {
-            totalAmount = quantity * values[index]["price"];
+          if (values[index].quantity <= quantity) {
+            totalAmount = quantity * values[index].price;
           }
         }
 
@@ -97,14 +99,13 @@ class _ProductScreenState extends State<ProductScreen> {
 
       if (this.quantityType == QuantityTypes.looseQuantity) {
         totalAmount = double.tryParse(_quantityTEC.text.trim()) *
-            double
-                .tryParse(product["quantity"]["values"][0]["price"].toString());
+                product.quantity.values[0].price;
 
-        List<dynamic> values = product["quantity"]["values"];
+        List<ProductQuantityValue> values = product.quantity.values;
 
         for (int index = 0; index < values.length; index++) {
-          if (values[index]["quantity"] <= quantity) {
-            totalAmount = quantity * values[index]["price"];
+          if (values[index].quantity <= quantity) {
+            totalAmount = quantity * values[index].price;
           }
         }
 
@@ -112,24 +113,24 @@ class _ProductScreenState extends State<ProductScreen> {
       }
 
       if (this.quantityType == QuantityTypes.customQuantity) {
-        List<dynamic> quantities = product["quantity"]["quantities"];
+        List<CustomQuantityUnit> quantities = product.quantity.quantities;
 
         if (checked.length != 0) {
           int index =
-              quantities.indexWhere((item) => item["name"] == checked[0]);
+              quantities.indexWhere((item) => item.name== checked[0]);
 
-          for (int i = 0; i < quantities[index].length; i++) {
-            if (quantity >= quantities[index]["prices"][i]["quantity"]) {
-              totalAmount = quantities[index]["prices"][i]["price"] *
+          for (int i = 0; i < quantities[index].values.length; i++) {
+            if (quantity >= quantities[index].values[i].quantity) {
+              totalAmount = quantities[index].values[i].price *
                   double.tryParse(
                       this._quantityTEC.text.trim().replaceAll(" ", ''));
             }
           }
         } else {
-          totalAmount = quantities[0]["values"][0]["price"] *
-              double
-                  .tryParse(this._quantityTEC.text.trim().replaceAll(" ", ''));
-          checked.add(quantities[0]["name"]);
+          totalAmount = quantities[0].values[0].price *
+              double.tryParse(
+                  this._quantityTEC.text.trim().replaceAll(" ", ''));
+          checked.add(quantities[0].name);
         }
 
         _totalAmountStream.add(totalAmount);
@@ -229,23 +230,23 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget customQuantityForm() {
-    List<dynamic> quantity = product["quantity"]["quantities"];
+    List<CustomQuantityUnit> quantity = product.quantity.quantities;
     return new Column(
       children: <Widget>[
         new Column(
           children: quantity
               .map((item) => new CheckboxListTile(
-                    value: checked.contains(item["name"]),
-                    title: new Text(item["name"]),
+                    value: checked.contains(item.name),
+                    title: new Text(item.name),
                     onChanged: (ticked) {
                       if (ticked) {
                         setState(() {
                           checked.clear();
-                          checked.add(item["name"]);
+                          checked.add(item.name);
                         });
                       } else {
                         setState(() {
-                          if (checked.length > 1) checked.remove(item["name"]);
+                          if (checked.length > 1) checked.remove(item.name);
                         });
                       }
                       handleQuantityChange();
@@ -267,7 +268,7 @@ class _ProductScreenState extends State<ProductScreen> {
         return pieceQuantityForm();
       } else if (quantityType == QuantityTypes.looseQuantity) {
         this._quantityTEC.text = double.tryParse(minimum.toString()).toString();
-        productQuantityUnit = product["quantity"]["unitName"];
+        productQuantityUnit = product.quantity.unitName;
         return looseQuantityForm();
       } else if (quantityType == QuantityTypes.customQuantity) {
         this._quantityTEC.text =
@@ -299,7 +300,7 @@ class _ProductScreenState extends State<ProductScreen> {
             title: new Text(title),
             flexibleSpace: new FlexibleSpaceBar(
                 background: new CachedNetworkImage(
-              imageUrl: imageUrl,
+                imageUrl: imageUrl,
             )),
           ),
 
@@ -432,20 +433,18 @@ class _ProductScreenState extends State<ProductScreen> {
           dynamic response;
           try {
             response = json.decode(snapshot.data.body);
+            product = Product.fromJson(response);
 
-            title = response["name"];
 
-            imageUrl = response["imageUrl"];
-            description = response["description"];
-            quantityType = response["quantity"]["type"];
-            minimum =
-                double.tryParse(response["quantity"]["minimum"].toString());
-            maximum =
-                double.tryParse(response["quantity"]["maximum"].toString());
+            title = product.name;
 
-            product = response;
-
+            imageUrl = product.imageUrl;
+            description = product.description;
+            quantityType = product.quantity.type;
+            minimum = product.quantity.minimum;
+            maximum = product.quantity.maximum;           
             return productPageBody();
+
           } catch (exception) {
             print(exception);
             return new Center(
@@ -480,7 +479,7 @@ class _ProductScreenState extends State<ProductScreen> {
       if (quantityType == QuantityTypes.looseQuantity) {
         CartItem cartItem = new CartItem(product, quantityType,
             looseQuantity: double.tryParse(_quantityTEC.text.toString().trim()),
-            looseQuantityUnitName: product["quantity"]["unitName"],
+            looseQuantityUnitName: product.quantity.unitName,
             amount: totalAmount);
         cartBloc.cartAddition.add(cartItem);
       }

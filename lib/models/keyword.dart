@@ -6,7 +6,7 @@ part 'keyword.g.dart';
 
 class Keyword{
   String keyword;
-  String weight;
+  double weight;
 
   Keyword(this.keyword,{this.weight});
 
