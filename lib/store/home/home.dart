@@ -208,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       productCategories.add(new ProductCategorySlide(
                         category["name"],
                         category["id"],
-                        products: (category["products"] as List).map((product)=>Product.fromJson(product)).toList(),
+                        products: (category["products"] as List)?.map((product)=>Product.fromJson(product))?.toList() ?? null,
                         color: oe % 2 != 0 ? Colors.white : Colors.black,
                       ));
 

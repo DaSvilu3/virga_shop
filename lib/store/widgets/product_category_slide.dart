@@ -63,7 +63,7 @@ class _ProductCategorySlideState extends State<ProductCategorySlide> {
                     },
                   );
                 }
-                if (index <= widget.products.length)
+                if (index <= (widget.products?.length ?? 0))
                   return new GestureDetector(
                     child: new Card(
                         margin: new EdgeInsets.all(10.0),
