@@ -32,23 +32,29 @@ class UserOrdersBloc {
     API.getUserOrders().then((response) {
       //after the request has completed,
       //if the status code is 200, then success
+     
       if (response.statusCode == 200) {
+         
+
         try {
           //now convert all the data to native models
           Map<String, dynamic> va = jsonDecode(response.body);
-
+          
           //response is always list of [UserOrder]
           va.forEach((f, v) {
+            
             _userOrders.add(UserOrder.fromJson(v));
           });
+
+           /// now we wanna put out some show
+          userOrders.add(_userOrders);
 
           //after we have completed the conversion
           //now get ready to display list
           _status.add(done);
 
-          /// now we wanna put out some show
-          userOrders.add(_userOrders);
         } catch (exception) {
+          print(exception);
           _status.add(done);
         }
       } else if (response.statusCode == 500) {

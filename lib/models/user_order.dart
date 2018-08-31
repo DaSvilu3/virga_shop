@@ -29,13 +29,13 @@ class UserOrder{
 
   UserOrder.fromJson(Map<String,dynamic> json){
     id = json["id"];
-    createdTime = DateTime.parse(json["created_time"]);
+    createdTime = DateTime.parse(json["createdTime"]);
     status = json["status"];
-    paymentMode = json["payment_mode"];
+    paymentMode = json["paymentMode"];
     disc = json["disc"];
     imageUrl = json["imageUrl"] ?? null;
     //orderItems =  json["order_items"]?.map((f)=>OrderItem.fromJson(f))?.toList();
-    List<dynamic> c= json["order_items"] ?? null;
+    List<dynamic> c= json["orderItems"] ?? null;
     orderItems = c?.map((f)=>OrderItem.fromJson(f))?.toList();
   }
   
