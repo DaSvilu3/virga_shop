@@ -8,9 +8,10 @@ import 'package:virga_shop/store/cart/cart_provider.dart';
 import 'package:virga_shop/store/category/category.dart';
 import 'dart:async';
 import '../product.dart';
-import '../../globals.dart';
+import 'package:virga_shop/globals.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:virga_shop/models/cart_item.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 
 class ProductCategorySlide extends StatefulWidget {
   final String _categoryName;
@@ -68,9 +69,10 @@ class _ProductCategorySlideState extends State<ProductCategorySlide> {
                     child: new Card(
                         margin: new EdgeInsets.all(10.0),
                         child: new SizedBox(
-                          child: new CachedNetworkImage(
-                            imageUrl: widget.products[index - 1].imageUrl,
-                            fit: BoxFit.fill,
+                          child: new Image(
+                            image: new AdvancedNetworkImage(
+                              Api.productImageThumb+'/'+ widget.products[index - 1].imageUrl
+                            ),
                           ),
                           width: MediaQuery.of(context).size.width / 5,
                           height: MediaQuery.of(context).size.width / 5,
@@ -123,9 +125,9 @@ class _ProductCategorySlideState extends State<ProductCategorySlide> {
                 child: new ZoomableWidget(
                   minScale: 0.5,
                   maxScale: 2.0,
-                  child: new CachedNetworkImage(imageUrl: product.imageUrl),
+                  child: new CachedNetworkImage(imageUrl:  Api.productImageLargeThumb +'/'+ product.imageUrl),
                 ),
-                height: MediaQuery.of(context).size.height * 0.20,
+                height: MediaQuery.of(context).size.height * 0.30,
                 width: MediaQuery.of(context).size.width * 0.9,
               ),
               new Container(
@@ -267,7 +269,7 @@ class _QuantityPromptState extends State<QuantityPrompt> {
     Navigator.pop(context);
     Scaffold
         .of(widget.context)
-        .showSnackBar(new SnackBar(content: new Text("Added to cart")));
+        .showSnackBar(new SnackBar(content: new Text("Added to cart"),duration: Duration(seconds: 2),));
   }
 
   @override

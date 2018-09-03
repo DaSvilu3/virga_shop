@@ -1,5 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_advanced_networkimage/flutter_advanced_networkimage.dart';
 import 'package:flutter/material.dart';
+import 'package:virga_shop/globals.dart';
 import 'package:virga_shop/models/product.dart';
 import 'package:virga_shop/models/product_category.dart';
 import 'package:virga_shop/network/api.dart';
@@ -82,10 +83,11 @@ class _CategoryPageBodyState extends State<CategoryPageBody> {
             leading: Container(
               margin: EdgeInsets.fromLTRB(0.0, 20.0, 0.0, .0),
               width: MediaQuery.of(context).size.height * 0.15,
-              child: CachedNetworkImage(
-                fit: BoxFit.contain,
-                imageUrl: product.imageUrl,
-              ),
+              child: Image(
+                image: AdvancedNetworkImage(
+                  Api.productImageThumb + '/' + product.imageUrl
+                ),
+              )
             ),
             title: new Text(
               product.name,

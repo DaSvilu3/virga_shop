@@ -252,6 +252,7 @@ class API {
     request.files.add(new http.MultipartFile.fromBytes("image", image.readAsBytesSync(),filename: image.path));
 
     return await request.send().then((response){
+     response.stream.bytesToString().then((onValue)=>print(onValue));
       if(response.statusCode == 200){              
         return true;
       }else{

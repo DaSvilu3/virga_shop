@@ -17,8 +17,7 @@ dependencies:
   flutter_svg: "^0.5.1"
   flutter_advanced_networkimage: any
   shared_preferences: any
-  cached_network_image: 
-    git: https://github.com/Cretezy/flutter_cached_network_image.git
+  cached_network_image: ^0.4.2
   rxdart: ^0.18.1
 
   json_annotation: ^1.1.0

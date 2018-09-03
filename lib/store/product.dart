@@ -294,13 +294,17 @@ class _ProductScreenState extends State<ProductScreen> {
           //////////////////////
 
           new SliverAppBar(
-            expandedHeight: 300.0,
+            expandedHeight: MediaQuery.of(context).size.width,
             pinned: true,
             primary: true,
             title: new Text(title),
+            backgroundColor: Colors.grey.shade100,
             flexibleSpace: new FlexibleSpaceBar(
                 background: new CachedNetworkImage(
                 imageUrl: imageUrl,
+                errorWidget: new Center(
+                  child: CircularProgressIndicator(),
+                ),
             )),
           ),
 
@@ -407,7 +411,7 @@ class _ProductScreenState extends State<ProductScreen> {
                       },
                       body: new Container(
                         child: new Text(description),
-                        padding: new EdgeInsets.all(100.0),
+                        padding: new EdgeInsets.all(20.0),
                       ),
                       isExpanded: isDescriptionExpanded),
                 ],
@@ -438,7 +442,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
             title = product.name;
 
-            imageUrl = product.imageUrl;
+            imageUrl = Api.productImageLargeThumb + '/' + product.imageUrl;
             description = product.description;
             quantityType = product.quantity.type;
             minimum = product.quantity.minimum;

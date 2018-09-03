@@ -2,8 +2,12 @@ import 'dart:async';
 import 'package:virga_shop/models/cart.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:virga_shop/models/cart_item.dart';
+import 'package:virga_shop/models/product.dart';
 import 'package:virga_shop/models/user_address.dart';
 import 'package:virga_shop/network/api.dart';
+import 'dart:convert';
+
+import 'package:virga_shop/sample.dart';
 
 class CartBloc {
   int count = 0;

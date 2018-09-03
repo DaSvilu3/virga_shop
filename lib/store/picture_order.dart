@@ -6,8 +6,7 @@ import 'package:rxdart/subjects.dart';
 import 'package:virga_shop/store/dialogs/picture_picker.dart';
 import 'package:virga_shop/store/place_order.dart';
 
-class PictureOrderPage extends StatefulWidget {
-  PictureOrderPage();
+class PictureOrderPage extends StatefulWidget { 
 
   @override
   State<StatefulWidget> createState() {
@@ -43,15 +42,12 @@ class _PictureOrderBodyState extends State<PictureOrderBody> {
 
   @override
   void initState() {
-    super.initState();
-    PicturePicker().dialog(context).then((_image) {
-      _imageFile = _image;
-      imageFileStream.add(_image);
-    });
+    super.initState();    
   }
 
   @override
   Widget build(BuildContext context) {
+  
     return new Column(
       children: <Widget>[
         new Row(

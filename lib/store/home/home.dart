@@ -125,10 +125,10 @@ class _HomeScreenState extends State<HomeScreen> {
             title: new Row(
               children: <Widget>[
                 Container(
-                  padding: new EdgeInsets.all(3.0),
+                    padding: new EdgeInsets.all(3.0),
                     child: new Image.asset(
-                  'graphics/logo_thump.png',                  
-                )),
+                      'graphics/logo_thump.png',
+                    )),
                 new Text(App.TITLE)
               ],
             ),
@@ -199,16 +199,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   List<dynamic> bannerUrls = data["banners"];
 
                   //look for product category
-                  if (data["category"] != null) {
-                    List<dynamic> categories = new List();
-                    categories = data["category"];
+                  if (data["categories"] != null) {
+                    Map<String, dynamic> categories = new Map();
+                    categories = data["categories"];
                     int oe = 0;
-                    categories.forEach((category) {
-                     
+                    categories.forEach((id, category) {
                       productCategories.add(new ProductCategorySlide(
                         category["name"],
                         category["id"],
-                        products: (category["products"] as List)?.map((product)=>Product.fromJson(product))?.toList() ?? null,
+                        products: (category["products"] as List)
+                                ?.map((product) => Product.fromJson(product))
+                                ?.toList() ??
+                            null,
                         color: oe % 2 != 0 ? Colors.white : Colors.black,
                       ));
 
@@ -226,11 +228,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ///
 
                     new SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.40,                      
+                      height: MediaQuery.of(context).size.height * 0.40,
                       child: new Carousel(
                         dotBgColor: Colors.black12,
                         autoplay: true,
-                        
                         autoplayDuration: new Duration(seconds: 5),
                         images: bannerUrls
                             .map((f) => new NetworkImage(f["name"]))
@@ -303,65 +304,95 @@ class _HomeScreenState extends State<HomeScreen> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     new CategoryPage(
-                                                        "5b4c8a80e05f062414001f80")));
+                                                        "5b8c0711e05f063d60000933")));
                                       },
                                     ),
-                                    new SizedBox.expand(
-                                      child: new Column(
-                                        children: <Widget>[
-                                          new Expanded(
-                                            child: new Image.asset(
-                                                "graphics/vegetables.png",
-                                                fit: BoxFit.fitHeight),
-                                          ),
-                                          new Expanded(
-                                            child: new Text(
-                                              "Vegetables",
-                                              style: new TextStyle(
-                                                fontSize: 12.0,
-                                              ),
+                                    GestureDetector(
+                                      child: new SizedBox.expand(
+                                        child: new Column(
+                                          children: <Widget>[
+                                            new Expanded(
+                                              child: new Image.asset(
+                                                  "graphics/vegetables.png",
+                                                  fit: BoxFit.fitHeight),
                                             ),
-                                          )
-                                        ],
+                                            new Expanded(
+                                              child: new Text(
+                                                "Vegetables",
+                                                style: new TextStyle(
+                                                  fontSize: 12.0,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       ),
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    new CategoryPage(
+                                                        "5b8c0712e05f063d60000936")));
+                                      },
                                     ),
-                                    new SizedBox.expand(
-                                      child: new Column(
-                                        children: <Widget>[
-                                          new Expanded(
-                                            child: new Image.asset(
-                                                "graphics/brush.png",
-                                                fit: BoxFit.fitHeight),
-                                          ),
-                                          new Expanded(
-                                            child: new Text(
-                                              "Home Care",
-                                              style: new TextStyle(
-                                                fontSize: 12.0,
-                                              ),
+                                    GestureDetector(
+                                      child: new SizedBox.expand(
+                                        child: new Column(
+                                          children: <Widget>[
+                                            new Expanded(
+                                              child: new Image.asset(
+                                                  "graphics/brush.png",
+                                                  fit: BoxFit.fitHeight),
                                             ),
-                                          )
-                                        ],
+                                            new Expanded(
+                                              child: new Text(
+                                                "Home Care",
+                                                style: new TextStyle(
+                                                  fontSize: 12.0,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       ),
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    new CategoryPage(
+                                                        "5b8c0711e05f063d60000935")));
+                                      },
                                     ),
-                                    new SizedBox.expand(
-                                      child: new Column(
-                                        children: <Widget>[
-                                          new Expanded(
-                                            child: new Image.asset(
-                                                "graphics/toothbrush.png",
-                                                fit: BoxFit.fitHeight),
-                                          ),
-                                          new Expanded(
-                                            child: new Text(
-                                              "Personal Care",
-                                              style: new TextStyle(
-                                                fontSize: 12.0,
-                                              ),
+                                    GestureDetector(
+                                      child: new SizedBox.expand(
+                                        child: new Column(
+                                          children: <Widget>[
+                                            new Expanded(
+                                              child: new Image.asset(
+                                                  "graphics/toothbrush.png",
+                                                  fit: BoxFit.fitHeight),
                                             ),
-                                          )
-                                        ],
+                                            new Expanded(
+                                              child: new Text(
+                                                "Personal Care",
+                                                style: new TextStyle(
+                                                  fontSize: 12.0,
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       ),
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    new CategoryPage(
+                                                        "5b8c0711e05f063d60000934")));
+                                      },
                                     ),
                                   ]),
                             )
@@ -399,9 +430,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           onTap: () {
                             print("refresh");
                             Scaffold.of(context).showSnackBar(new SnackBar(
-                                  content: new Text("Refreshing....."),
-                                  duration: Duration(seconds: 2),
-                                ));
+                              content: new Text("Refreshing....."),
+                              duration: Duration(seconds: 2),
+                            ));
                             setState(() {});
                           },
                           child: new InkWell(
@@ -462,7 +493,6 @@ class Store extends StatefulWidget {
     // TODO: implement createState
     return _StoreState();
   }
-
 }
 
 class _StoreState extends State<Store> {
@@ -509,7 +539,7 @@ class _StoreState extends State<Store> {
   }
 
   @override
-    void dispose() {      
-      super.dispose();
-    }
+  void dispose() {
+    super.dispose();
+  }
 }

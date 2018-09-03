@@ -41,7 +41,7 @@ class _UserOrdersBodyState extends State<UserOrdersBody> {
                 new ListTile(
                   leading: new CachedNetworkImage(
                     width: MediaQuery.of(context).size.width * 0.2,
-                    imageUrl: Globals.Api.productImageAssetUrl +
+                    imageUrl: Globals.Api.productImageThumb +
                         '/' +
                         item.product["imageUrl"],
                     errorWidget: Center(

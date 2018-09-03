@@ -216,12 +216,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onPressed: () {
                               if (_formKey.currentState.validate()) {
                                 print("Register started");
+                                _scaffoldKey.currentState.showSnackBar(
+                                  SnackBar(content: new Text("Registering on server. Please wait"),)
+                                );
                                 API
                                     .register(
                                         _emailController.text.trim(),
                                         _mobileController.text.trim(),
                                         _passwordController.text.trim())
-                                    .then((response) {                                     
+                                    .then((response) {     
+
+                                   _scaffoldKey.currentState.hideCurrentSnackBar();
+
                                   if (response.statusCode == 500) {
                                     dynamic body = jsonDecode(response.body);
                                     _scaffoldKey.currentState

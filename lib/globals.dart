@@ -21,7 +21,7 @@ class QuantityTypes{
 }
 
 class Api{
-  static const String URL = "http://10.0.2.2/VirgaMongo/public";
+  static const String URL = "http://159.89.169.225";
   static const String productImageAssetUrl = URL + '/product/images';
   static const String pictureOrderAssetUrl = URL + '/picture_order/images';
   static const String loginUrl = URL+'/api/login_check';
@@ -34,6 +34,8 @@ class Api{
   static const String placeOrderUrl = URL + '/api/orders';
   static const String currentUserAddressUrl = URL + '/api/user/addresses';
   static const String currentUserOrdersUrl = URL + '/api/user/orders';
+  static const String productImageThumb = URL + '/product/thumbs';
+  static const String productImageLargeThumb = URL + '/product/large_thumbs';
   
 }
 
